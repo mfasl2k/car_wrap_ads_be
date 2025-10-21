@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users & Authentication
+model User {
+  userId      String   @id @default(dbgenerated("uuid_generate_v4()")) @map("user_id") @db.Uuid
+  email       String   @unique @db.VarChar(255)
+  passwordHash String  @map("password_hash") @db.VarChar(255)
+  userType    UserType @map("user_type")
+  isActive    Boolean  @default(true) @map("is_active")
+  isVerified  Boolean  @default(false) @map("is_verified")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  driver       Driver?
+  advertiser   Advertiser?
+  notifications Notification[]
+
+  @@map("user")
+}
+
+enum UserType {
+  driver
+  advertiser
+}
+
+// Driver Profiles
+model Driver {
+  driverId               String   @id @default(dbgenerated("uuid_generate_v4()")) @map("driver_id") @db.Uuid
+  userId                 String   @unique @map("user_id") @db.Uuid
+  firstName              String   @map("first_name") @db.VarChar(100)
+  lastName               String   @map("last_name") @db.VarChar(100)
+  phoneNumber            String?  @map("phone_number") @db.VarChar(20)
+  dateOfBirth            DateTime? @map("date_of_birth") @db.Date
+  driversLicenseNumber   String?  @unique @map("drivers_license_number") @db.VarChar(50)
+  city                   String?  @db.VarChar(100)
+  region                 String?  @db.VarChar(100)
+  currentLocation        Unsupported("GEOMETRY(Point, 4326)")? @map("current_location") // GPS coordinates
+  averageRating          Decimal  @default(0) @map("average_rating") @db.Decimal(3, 2)
+  totalCampaignsCompleted Int     @default(0) @map("total_campaigns_completed")
+  isVerified             Boolean  @default(false) @map("is_verified")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  vehicles Vehicle[]
+  routes   DriverRoute[]
+
+  @@map("driver")
+}
+
+// Vehicles
+model Vehicle {
+  vehicleId          String        @id @default(dbgenerated("uuid_generate_v4()")) @map("vehicle_id") @db.Uuid
+  driverId           String        @map("driver_id") @db.Uuid
+  make               String        @db.VarChar(50)
+  model              String        @db.VarChar(50)
+  year               Int
+  color              String?       @db.VarChar(30)
+  registrationNumber String        @unique @map("registration_number") @db.VarChar(20)
+  vehicleType        VehicleType?  @map("vehicle_type")
+  sizeCategory       SizeCategory? @map("size_category")
+  photoUrl           String?       @map("photo_url") @db.Text
+  isVerified         Boolean       @default(false) @map("is_verified")
+  createdAt          DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  driver Driver @relation(fields: [driverId], references: [driverId], onDelete: Cascade)
+
+  @@map("vehicle")
+}
+
+enum VehicleType {
+  sedan
+  suv
+  van
+  truck
+  hatchback
+}
+
+enum SizeCategory {
+  small
+  medium
+  large
+}
+
+// Advertisers
+model Advertiser {
+  advertiserId    String   @id @default(dbgenerated("uuid_generate_v4()")) @map("advertiser_id") @db.Uuid
+  userId          String   @unique @map("user_id") @db.Uuid
+  companyName     String   @map("company_name") @db.VarChar(200)
+  contactPerson   String?  @map("contact_person") @db.VarChar(100)
+  phoneNumber     String?  @map("phone_number") @db.VarChar(20)
+  businessAddress String?  @map("business_address") @db.Text
+  city            String?  @db.VarChar(100)
+  industry        String?  @db.VarChar(100)
+  isVerified      Boolean  @default(false) @map("is_verified")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user          User           @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  campaignAreas CampaignArea[]
+
+  @@map("advertiser")
+}
+
+// Notifications
+model Notification {
+  notificationId String   @id @default(dbgenerated("uuid_generate_v4()")) @map("notification_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  title          String   @db.VarChar(200)
+  message        String?  @db.Text
+  isRead         Boolean  @default(false) @map("is_read")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("notification")
+}
+
+// Driver Routes - for tracking driver paths
+model DriverRoute {
+  routeId   String                              @id @default(dbgenerated("uuid_generate_v4()")) @map("route_id") @db.Uuid
+  driverId  String                              @map("driver_id") @db.Uuid
+  routePath Unsupported("GEOMETRY(LineString, 4326)") @map("route_path") // Path/route taken
+  startTime DateTime                            @map("start_time")
+  endTime   DateTime?                           @map("end_time")
+  distance  Decimal?                            @db.Decimal(10, 2) // Distance in km
+  createdAt DateTime                            @default(now()) @map("created_at")
+
+  // Relations
+  driver Driver @relation(fields: [driverId], references: [driverId], onDelete: Cascade)
+
+  @@map("driver_route")
+}
+
+// Campaign Target Areas - for defining where ads should be displayed
+model CampaignArea {
+  areaId       String                              @id @default(dbgenerated("uuid_generate_v4()")) @map("area_id") @db.Uuid
+  advertiserId String                              @map("advertiser_id") @db.Uuid
+  areaName     String                              @db.VarChar(100)
+  targetArea   Unsupported("GEOMETRY(Polygon, 4326)") @map("target_area") // Geographic area for campaign
+  description  String?                             @db.Text
+  createdAt    DateTime                            @default(now()) @map("created_at")
+
+  // Relations
+  advertiser Advertiser @relation(fields: [advertiserId], references: [advertiserId], onDelete: Cascade)
+
+  @@map("campaign_area")
+}
