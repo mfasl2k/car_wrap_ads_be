@@ -53,9 +53,11 @@ model Driver {
   updatedAt              DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  user     User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  vehicles Vehicle[]
-  routes   DriverRoute[]
+  user            User             @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  vehicles        Vehicle[]
+  routes          DriverRoute[]
+  driverCampaigns DriverCampaign[]
+  locationTracks  LocationTrack[]
 
   @@map("driver")
 }
@@ -111,6 +113,7 @@ model Advertiser {
 
   // Relations
   user          User           @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  campaigns     Campaign[]
   campaignAreas CampaignArea[]
 
   @@map("advertiser")
@@ -147,7 +150,7 @@ model DriverRoute {
   @@map("driver_route")
 }
 
-// Campaign Target Areas - for defining where ads should be displayed
+// Campaign Target Areas - for defining where ads should be displayed (DEPRECATED - use CampaignTargetArea instead)
 model CampaignArea {
   areaId       String                              @id @default(dbgenerated("uuid_generate_v4()")) @map("area_id") @db.Uuid
   advertiserId String                              @map("advertiser_id") @db.Uuid
@@ -160,4 +163,157 @@ model CampaignArea {
   advertiser Advertiser @relation(fields: [advertiserId], references: [advertiserId], onDelete: Cascade)
 
   @@map("campaign_area")
+}
+
+// ==================== PART 2: CAMPAIGNS ====================
+
+// Campaigns
+model Campaign {
+  campaignId      String          @id @default(dbgenerated("uuid_generate_v4()")) @map("campaign_id") @db.Uuid
+  advertiserId    String          @map("advertiser_id") @db.Uuid
+  campaignName    String          @map("campaign_name") @db.VarChar(200)
+  description     String?         @db.Text
+  status          CampaignStatus  @default(draft)
+  startDate       DateTime        @map("start_date") @db.Date
+  endDate         DateTime        @map("end_date") @db.Date
+  paymentPerDay   Decimal?        @map("payment_per_day") @db.Decimal(10, 2)
+  requiredDrivers Int             @default(1) @map("required_drivers")
+  wrapDesignUrl   String?         @map("wrap_design_url") @db.Text
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  advertiser        Advertiser            @relation(fields: [advertiserId], references: [advertiserId], onDelete: Cascade)
+  targetAreas       CampaignTargetArea[]
+  driverCampaigns   DriverCampaign[]
+  campaignAnalytics CampaignAnalytics[]
+
+  @@index([advertiserId], map: "idx_campaign_advertiser")
+  @@index([status], map: "idx_campaign_status")
+  @@map("campaign")
+}
+
+enum CampaignStatus {
+  draft
+  active
+  paused
+  completed
+  cancelled
+}
+
+// Campaign Target Areas (with PostGIS polygon)
+model CampaignTargetArea {
+  targetAreaId  String                              @id @default(dbgenerated("uuid_generate_v4()")) @map("target_area_id") @db.Uuid
+  campaignId    String                              @map("campaign_id") @db.Uuid
+  areaName      String?                             @db.VarChar(200)
+  polygon       Unsupported("GEOMETRY(Polygon, 4326)") // Geographic boundary
+  priorityLevel Int                                 @default(5) @map("priority_level")
+  createdAt     DateTime                            @default(now()) @map("created_at")
+
+  // Relations
+  campaign Campaign @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+
+  @@map("campaign_target_area")
+}
+
+// Driver Campaign Applications/Assignments
+model DriverCampaign {
+  driverCampaignId String               @id @default(dbgenerated("uuid_generate_v4()")) @map("driver_campaign_id") @db.Uuid
+  driverId         String               @map("driver_id") @db.Uuid
+  campaignId       String               @map("campaign_id") @db.Uuid
+  status           DriverCampaignStatus @default(pending)
+  matchScore       Decimal?             @map("match_score") @db.Decimal(5, 2) // 0-100 from matching algorithm
+  startDate        DateTime?            @map("start_date") @db.Date
+  endDate          DateTime?            @map("end_date") @db.Date
+  appliedAt        DateTime             @default(now()) @map("applied_at")
+  approvedAt       DateTime?            @map("approved_at")
+  rejectionReason  String?              @map("rejection_reason") @db.Text
+  createdAt        DateTime             @default(now()) @map("created_at")
+
+  // Relations
+  driver         Driver          @relation(fields: [driverId], references: [driverId], onDelete: Cascade)
+  campaign       Campaign        @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+  locationTracks LocationTrack[]
+
+  @@unique([driverId, campaignId])
+  @@index([driverId], map: "idx_driver_campaign_driver")
+  @@index([campaignId], map: "idx_driver_campaign_campaign")
+  @@index([status], map: "idx_driver_campaign_status")
+  @@map("driver_campaign")
+}
+
+enum DriverCampaignStatus {
+  pending
+  approved
+  active
+  completed
+  rejected
+}
+
+// ==================== PART 3: LOCATION TRACKING ====================
+
+// Daily Route Tracks
+model LocationTrack {
+  trackId              String                              @id @default(dbgenerated("uuid_generate_v4()")) @map("track_id") @db.Uuid
+  driverId             String                              @map("driver_id") @db.Uuid
+  driverCampaignId     String?                             @map("driver_campaign_id") @db.Uuid
+  trackDate            DateTime                            @map("track_date") @db.Date
+  startTime            DateTime?                           @map("start_time") @db.Time(6)
+  endTime              DateTime?                           @map("end_time") @db.Time(6)
+  routeLine            Unsupported("GEOMETRY(LineString, 4326)")? @map("route_line") // Simplified route
+  distanceKm           Decimal?                            @map("distance_km") @db.Decimal(10, 2)
+  durationHours        Decimal?                            @map("duration_hours") @db.Decimal(5, 2)
+  estimatedImpressions Int                                 @default(0) @map("estimated_impressions")
+  isSynced             Boolean                             @default(false) @map("is_synced")
+  syncedAt             DateTime?                           @map("synced_at")
+  createdAt            DateTime                            @default(now()) @map("created_at")
+
+  // Relations
+  driver         Driver          @relation(fields: [driverId], references: [driverId], onDelete: Cascade)
+  driverCampaign DriverCampaign? @relation(fields: [driverCampaignId], references: [driverCampaignId], onDelete: SetNull)
+  locationPoints LocationPoint[]
+
+  @@index([driverId], map: "idx_location_track_driver")
+  @@index([trackDate], map: "idx_location_track_date")
+  @@index([driverId, isSynced], map: "idx_location_track_unsynced")
+  @@map("location_track")
+}
+
+// Raw GPS Points
+model LocationPoint {
+  pointId        String                           @id @default(dbgenerated("uuid_generate_v4()")) @map("point_id") @db.Uuid
+  trackId        String                           @map("track_id") @db.Uuid
+  recordedAt     DateTime                         @map("recorded_at")
+  latitude       Decimal                          @db.Decimal(10, 8)
+  longitude      Decimal                          @db.Decimal(11, 8)
+  location       Unsupported("GEOMETRY(Point, 4326)") // PostGIS point
+  accuracyMeters Decimal?                         @map("accuracy_meters") @db.Decimal(6, 2)
+  speedKmh       Decimal?                         @map("speed_kmh") @db.Decimal(6, 2)
+  isSynced       Boolean                          @default(false) @map("is_synced")
+  createdAt      DateTime                         @default(now()) @map("created_at")
+
+  // Relations
+  track LocationTrack @relation(fields: [trackId], references: [trackId], onDelete: Cascade)
+
+  @@index([trackId, recordedAt], map: "idx_location_point_recorded")
+  @@map("location_point")
+}
+
+// Campaign Analytics
+model CampaignAnalytics {
+  analyticsId         String                              @id @default(dbgenerated("uuid_generate_v4()")) @map("analytics_id") @db.Uuid
+  campaignId          String                              @map("campaign_id") @db.Uuid
+  analyticsDate       DateTime                            @map("analytics_date") @db.Date
+  activeDriversCount  Int                                 @default(0) @map("active_drivers_count")
+  totalDistanceKm     Decimal                             @default(0) @map("total_distance_km") @db.Decimal(10, 2)
+  totalImpressions    Int                                 @default(0) @map("total_impressions")
+  coveragePercentage  Decimal                             @default(0) @map("coverage_percentage") @db.Decimal(5, 2)
+  coverageArea        Unsupported("GEOMETRY(Polygon, 4326)")? @map("coverage_area") // Area covered by campaign
+  calculatedAt        DateTime                            @default(now()) @map("calculated_at")
+
+  // Relations
+  campaign Campaign @relation(fields: [campaignId], references: [campaignId], onDelete: Cascade)
+
+  @@unique([campaignId, analyticsDate])
+  @@map("campaign_analytics")
 }
