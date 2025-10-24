@@ -1,10 +1,10 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { config } from '../config/env';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { config } from "../config/env";
 
 interface TokenPayload {
   userId: string;
-  userType: 'driver' | 'advertiser';
+  userType: "driver" | "advertiser";
 }
 
 /**
@@ -37,7 +37,7 @@ export const comparePassword = async (
  */
 export const generateToken = (payload: TokenPayload): string => {
   return jwt.sign(payload, config.JWT_SECRET, {
-    expiresIn: config.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
+    expiresIn: config.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
   });
 };
 
@@ -56,8 +56,8 @@ export const verifyToken = (token: string): TokenPayload => {
  * @returns Token string or null
  */
 export const extractToken = (authHeader: string | undefined): string | null => {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return null;
   }
-  return authHeader.split(' ')[1];
+  return authHeader.split(" ")[1];
 };
