@@ -28,6 +28,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "email": "testdriver@example.com",
@@ -39,6 +40,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (201):**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -51,12 +53,13 @@ Content-Type: application/json
 ```
 
 **Postman Test Script:**
+
 ```javascript
 if (pm.response.code === 201) {
-    const jsonData = pm.response.json();
-    pm.environment.set("driver_token", jsonData.token);
-    pm.environment.set("driver_user_id", jsonData.user.userId);
-    console.log("✅ Driver token saved");
+  const jsonData = pm.response.json();
+  pm.environment.set("driver_token", jsonData.token);
+  pm.environment.set("driver_user_id", jsonData.user.userId);
+  console.log("✅ Driver token saved");
 }
 ```
 
@@ -71,6 +74,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "firstName": "John",
@@ -84,6 +88,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (201):**
+
 ```json
 {
   "success": true,
@@ -97,11 +102,12 @@ Content-Type: application/json
 ```
 
 **Postman Test Script:**
+
 ```javascript
 if (pm.response.code === 201) {
-    const jsonData = pm.response.json();
-    pm.environment.set("driver_id", jsonData.data.driverId);
-    console.log("✅ Driver ID saved:", jsonData.data.driverId);
+  const jsonData = pm.response.json();
+  pm.environment.set("driver_id", jsonData.data.driverId);
+  console.log("✅ Driver ID saved:", jsonData.data.driverId);
 }
 ```
 
@@ -116,6 +122,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "make": "Toyota",
@@ -129,6 +136,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (201):**
+
 ```json
 {
   "success": true,
@@ -143,11 +151,12 @@ Content-Type: application/json
 ```
 
 **Postman Test Script:**
+
 ```javascript
 if (pm.response.code === 201) {
-    const jsonData = pm.response.json();
-    pm.environment.set("vehicle_id", jsonData.data.vehicleId);
-    console.log("✅ Vehicle ID saved:", jsonData.data.vehicleId);
+  const jsonData = pm.response.json();
+  pm.environment.set("vehicle_id", jsonData.data.vehicleId);
+  console.log("✅ Vehicle ID saved:", jsonData.data.vehicleId);
 }
 ```
 
@@ -163,6 +172,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "email": "admin@carwrapad.com",
@@ -172,6 +182,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (201):**
+
 ```json
 {
   "status": "success",
@@ -191,12 +202,13 @@ Content-Type: application/json
 ```
 
 **Postman Test Script:**
+
 ```javascript
 if (pm.response.code === 201) {
-    const jsonData = pm.response.json();
-    pm.environment.set("admin_token", jsonData.data.token);
-    pm.environment.set("admin_user_id", jsonData.data.user.userId);
-    console.log("✅ Admin token saved");
+  const jsonData = pm.response.json();
+  pm.environment.set("admin_token", jsonData.data.token);
+  pm.environment.set("admin_user_id", jsonData.data.user.userId);
+  console.log("✅ Admin token saved");
 }
 ```
 
@@ -214,6 +226,7 @@ Authorization: Bearer {{admin_token}}
 **No Body Required**
 
 **Expected Response (200):**
+
 ```json
 {
   "status": "success",
@@ -247,15 +260,20 @@ Authorization: Bearer {{admin_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("Vehicle is verified", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.data.vehicle.isVerified).to.be.true;
-    console.log("✅ Vehicle verified:", jsonData.data.vehicle.make, jsonData.data.vehicle.model);
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.data.vehicle.isVerified).to.be.true;
+  console.log(
+    "✅ Vehicle verified:",
+    jsonData.data.vehicle.make,
+    jsonData.data.vehicle.model
+  );
 });
 ```
 
@@ -264,8 +282,8 @@ pm.test("Vehicle is verified", function () {
 If you prefer, you can still verify vehicles directly in the database:
 
 ```sql
-UPDATE vehicle 
-SET is_verified = true 
+UPDATE vehicle
+SET is_verified = true
 WHERE registration_number = 'ABC123';
 ```
 
@@ -279,6 +297,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "email": "testadvertiser@example.com",
@@ -289,6 +308,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (201):**
+
 ```json
 {
   "status": "success",
@@ -305,12 +325,13 @@ Content-Type: application/json
 ```
 
 **Postman Test Script:**
+
 ```javascript
 if (pm.response.code === 201) {
-    const jsonData = pm.response.json();
-    pm.environment.set("advertiser_token", jsonData.data.token);
-    pm.environment.set("advertiser_user_id", jsonData.data.user.userId);
-    console.log("✅ Advertiser token saved");
+  const jsonData = pm.response.json();
+  pm.environment.set("advertiser_token", jsonData.data.token);
+  pm.environment.set("advertiser_user_id", jsonData.data.user.userId);
+  console.log("✅ Advertiser token saved");
 }
 ```
 
@@ -325,6 +346,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "companyName": "Test Marketing Ltd",
@@ -337,6 +359,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (201):**
+
 ```json
 {
   "success": true,
@@ -349,11 +372,12 @@ Content-Type: application/json
 ```
 
 **Postman Test Script:**
+
 ```javascript
 if (pm.response.code === 201) {
-    const jsonData = pm.response.json();
-    pm.environment.set("advertiser_id", jsonData.data.advertiserId);
-    console.log("✅ Advertiser ID saved");
+  const jsonData = pm.response.json();
+  pm.environment.set("advertiser_id", jsonData.data.advertiserId);
+  console.log("✅ Advertiser ID saved");
 }
 ```
 
@@ -368,6 +392,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "campaignName": "Summer Sale Campaign 2025",
@@ -380,6 +405,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (201):**
+
 ```json
 {
   "success": true,
@@ -393,11 +419,12 @@ Content-Type: application/json
 ```
 
 **Postman Test Script:**
+
 ```javascript
 if (pm.response.code === 201) {
-    const jsonData = pm.response.json();
-    pm.environment.set("campaign_id", jsonData.data.campaignId);
-    console.log("✅ Campaign ID saved:", jsonData.data.campaignId);
+  const jsonData = pm.response.json();
+  pm.environment.set("campaign_id", jsonData.data.campaignId);
+  console.log("✅ Campaign ID saved:", jsonData.data.campaignId);
 }
 ```
 
@@ -412,6 +439,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "status": "active"
@@ -419,6 +447,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -442,6 +471,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -476,14 +506,15 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("Response has campaigns array", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.data.campaigns).to.be.an('array');
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.data.campaigns).to.be.an("array");
 });
 ```
 
@@ -499,6 +530,7 @@ Authorization: Bearer {{driver_token}}
 **No Body Required**
 
 **Expected Response (201):**
+
 ```json
 {
   "success": true,
@@ -570,26 +602,27 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 201", function () {
-    pm.response.to.have.status(201);
+  pm.response.to.have.status(201);
 });
 
 pm.test("Application status is pending", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.data.status).to.equal("pending");
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.data.status).to.equal("pending");
 });
 
 pm.test("Match score is calculated", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.data.matchScore).to.exist;
-    console.log("Match Score:", jsonData.data.matchScore);
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.data.matchScore).to.exist;
+  console.log("Match Score:", jsonData.data.matchScore);
 });
 
 if (pm.response.code === 201) {
-    const jsonData = pm.response.json();
-    pm.environment.set("application_id", jsonData.data.driverCampaignId);
-    console.log("✅ Application submitted with score:", jsonData.data.matchScore);
+  const jsonData = pm.response.json();
+  pm.environment.set("application_id", jsonData.data.driverCampaignId);
+  console.log("✅ Application submitted with score:", jsonData.data.matchScore);
 }
 ```
 
@@ -603,6 +636,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (400):**
+
 ```json
 {
   "success": false,
@@ -611,14 +645,15 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 400", function () {
-    pm.response.to.have.status(400);
+  pm.response.to.have.status(400);
 });
 
 pm.test("Error message about duplicate application", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.message).to.include("already applied");
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.message).to.include("already applied");
 });
 ```
 
@@ -632,6 +667,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -678,20 +714,21 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("Has applications array", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.data).to.be.an('array');
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.data).to.be.an("array");
 });
 
 pm.test("Has statistics", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.statistics).to.exist;
-    console.log("Statistics:", JSON.stringify(jsonData.statistics, null, 2));
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.statistics).to.exist;
+  console.log("Statistics:", JSON.stringify(jsonData.statistics, null, 2));
 });
 ```
 
@@ -705,6 +742,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -726,12 +764,13 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("All applications are pending", function () {
-    const jsonData = pm.response.json();
-    jsonData.data.forEach(app => {
-        pm.expect(app.status).to.equal("pending");
-    });
+  const jsonData = pm.response.json();
+  jsonData.data.forEach((app) => {
+    pm.expect(app.status).to.equal("pending");
+  });
 });
 ```
 
@@ -747,6 +786,7 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -804,17 +844,22 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("Has driver details", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.data[0].driver).to.exist;
-    pm.expect(jsonData.data[0].driver.vehicles).to.be.an('array');
-    console.log("Driver:", jsonData.data[0].driver.firstName, jsonData.data[0].driver.lastName);
-    console.log("Match Score:", jsonData.data[0].matchScore);
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.data[0].driver).to.exist;
+  pm.expect(jsonData.data[0].driver.vehicles).to.be.an("array");
+  console.log(
+    "Driver:",
+    jsonData.data[0].driver.firstName,
+    jsonData.data[0].driver.lastName
+  );
+  console.log("Match Score:", jsonData.data[0].matchScore);
 });
 ```
 
@@ -828,6 +873,7 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -861,6 +907,7 @@ Authorization: Bearer {{advertiser_token}}
 **No Body Required**
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -903,16 +950,17 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("Application is approved", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.data.status).to.equal("approved");
-    pm.expect(jsonData.data.approvedAt).to.exist;
-    console.log("✅ Application approved at:", jsonData.data.approvedAt);
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.data.status).to.equal("approved");
+  pm.expect(jsonData.data.approvedAt).to.exist;
+  console.log("✅ Application approved at:", jsonData.data.approvedAt);
 });
 ```
 
@@ -926,6 +974,7 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Expected Response (400):**
+
 ```json
 {
   "success": false,
@@ -934,14 +983,15 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 400", function () {
-    pm.response.to.have.status(400);
+  pm.response.to.have.status(400);
 });
 
 pm.test("Error about application status", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.message).to.include("Cannot approve");
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.message).to.include("Cannot approve");
 });
 ```
 
@@ -950,6 +1000,7 @@ pm.test("Error about application status", function () {
 ### Test 10: Create Second Driver for Rejection Test
 
 Repeat Steps 1-4 with:
+
 - Email: `testdriver2@example.com`
 - Registration: `XYZ789`
 - Then apply to campaign
@@ -967,6 +1018,7 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "reason": "Unfortunately, your vehicle type does not match the campaign requirements at this time."
@@ -974,6 +1026,7 @@ Content-Type: application/json
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -1002,16 +1055,17 @@ Content-Type: application/json
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("Application is rejected", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.data.status).to.equal("rejected");
-    pm.expect(jsonData.data.rejectionReason).to.exist;
-    console.log("❌ Rejection reason:", jsonData.data.rejectionReason);
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.data.status).to.equal("rejected");
+  pm.expect(jsonData.data.rejectionReason).to.exist;
+  console.log("❌ Rejection reason:", jsonData.data.rejectionReason);
 });
 ```
 
@@ -1026,11 +1080,13 @@ Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {}
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -1056,6 +1112,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -1064,14 +1121,15 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("Success message", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.message).to.include("cancelled successfully");
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.message).to.include("cancelled successfully");
 });
 ```
 
@@ -1085,6 +1143,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (400):**
+
 ```json
 {
   "success": false,
@@ -1093,9 +1152,10 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Status is 400", function () {
-    pm.response.to.have.status(400);
+  pm.response.to.have.status(400);
 });
 ```
 
@@ -1113,6 +1173,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (400):**
+
 ```json
 {
   "success": false,
@@ -1132,6 +1193,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (400):**
+
 ```json
 {
   "success": false,
@@ -1149,6 +1211,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (400):**
+
 ```json
 {
   "errors": [
@@ -1171,6 +1234,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected Response (403):**
+
 ```json
 {
   "message": "You do not have permission to perform this action"
@@ -1187,6 +1251,7 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Expected Response (403):**
+
 ```json
 {
   "message": "You do not have permission to perform this action"
@@ -1205,6 +1270,7 @@ Authorization: Bearer {{other_advertiser_token}}
 ```
 
 **Expected Response (403):**
+
 ```json
 {
   "success": false,
@@ -1219,6 +1285,7 @@ Authorization: Bearer {{other_advertiser_token}}
 ### Test 21: Verify Statistics After Multiple Applications
 
 **Create 5 drivers, have them all apply to same campaign:**
+
 - Approve 2 applications
 - Reject 2 applications
 - Leave 1 pending
@@ -1231,6 +1298,7 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Expected Response (200):**
+
 ```json
 {
   "success": true,
@@ -1245,13 +1313,14 @@ Authorization: Bearer {{advertiser_token}}
 ```
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Statistics match expected counts", function () {
-    const jsonData = pm.response.json();
-    pm.expect(jsonData.statistics.total).to.equal(5);
-    pm.expect(jsonData.statistics.approved).to.equal(2);
-    pm.expect(jsonData.statistics.rejected).to.equal(2);
-    pm.expect(jsonData.statistics.pending).to.equal(1);
+  const jsonData = pm.response.json();
+  pm.expect(jsonData.statistics.total).to.equal(5);
+  pm.expect(jsonData.statistics.approved).to.equal(2);
+  pm.expect(jsonData.statistics.rejected).to.equal(2);
+  pm.expect(jsonData.statistics.pending).to.equal(1);
 });
 ```
 
@@ -1264,12 +1333,15 @@ pm.test("Statistics match expected counts", function () {
 Create drivers with different ratings and verify match scores:
 
 **High Rating Driver (4.5 stars):**
+
 - Expected score: ~95 (50 + 27 + 20)
 
 **New Driver (0 stars):**
+
 - Expected score: ~85 (50 + 15 + 20)
 
 **Driver without verified vehicle:**
+
 - Expected score: ~65 (50 + 15 + 0)
 
 ```
@@ -1280,13 +1352,14 @@ Authorization: Bearer {{driver_token}}
 Check `matchScore` in response.
 
 **Postman Test Script:**
+
 ```javascript
 pm.test("Match score is calculated", function () {
-    const jsonData = pm.response.json();
-    const score = parseFloat(jsonData.data.matchScore);
-    pm.expect(score).to.be.at.least(0);
-    pm.expect(score).to.be.at.most(100);
-    console.log("Match Score:", score);
+  const jsonData = pm.response.json();
+  const score = parseFloat(jsonData.data.matchScore);
+  pm.expect(score).to.be.at.least(0);
+  pm.expect(score).to.be.at.most(100);
+  console.log("Match Score:", score);
 });
 ```
 
@@ -1341,4 +1414,4 @@ Run tests in this order for complete workflow:
 
 ---
 
-*Ready to test! Start with the Setup section and work through each test sequentially.*
+_Ready to test! Start with the Setup section and work through each test sequentially._

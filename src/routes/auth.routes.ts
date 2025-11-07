@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { register, login, logout, getMe, createAdmin } from "../controllers/auth.controller";
+import {
+  register,
+  login,
+  logout,
+  getMe,
+  createAdmin,
+} from "../controllers/auth.controller";
 import { authenticate, authorize } from "../middleware/auth";
 import { validate } from "../middleware/validator";
 
@@ -52,6 +58,12 @@ router.get("/me", authenticate, getMe);
 router.post("/logout", authenticate, logout);
 
 // Admin-only routes
-router.post("/admin/create", authenticate, authorize('admin'), createAdminValidation, createAdmin);
+router.post(
+  "/admin/create",
+  authenticate,
+  authorize("admin"),
+  createAdminValidation,
+  createAdmin
+);
 
 export default router;

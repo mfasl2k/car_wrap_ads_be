@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -21,7 +21,7 @@ const calculateMatchingScore = async (
 
   const campaign = await prisma.campaign.findUnique({
     where: { campaignId: campaignId },
-    select: { 
+    select: {
       targetAreas: true,
     },
   });
@@ -32,7 +32,7 @@ const calculateMatchingScore = async (
 
   // Score based on vehicle type match (0-50 points)
   // Get first verified vehicle
-  const vehicle = driver.vehicles.find(v => v.isVerified);
+  const vehicle = driver.vehicles.find((v) => v.isVerified);
   if (vehicle) {
     // For now, all vehicle types get same score since campaign doesn't have vehicleTypes field
     score += 50; // Vehicle exists and is verified
@@ -68,9 +68,9 @@ export const applyToCampaign = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'User not authenticated' 
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
       });
     }
 
@@ -81,26 +81,28 @@ export const applyToCampaign = async (req: Request, res: Response) => {
     });
 
     if (!driver) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Driver profile not found. Please create your driver profile first.' 
+      return res.status(404).json({
+        success: false,
+        message:
+          "Driver profile not found. Please create your driver profile first.",
       });
     }
 
     // Check if driver has a vehicle
     if (!driver.vehicles || driver.vehicles.length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'You must have a registered vehicle to apply to campaigns.' 
+      return res.status(400).json({
+        success: false,
+        message: "You must have a registered vehicle to apply to campaigns.",
       });
     }
 
     // Check if at least one vehicle is verified
-    const hasVerifiedVehicle = driver.vehicles.some(v => v.isVerified);
+    const hasVerifiedVehicle = driver.vehicles.some((v) => v.isVerified);
     if (!hasVerifiedVehicle) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'You must have at least one verified vehicle before applying to campaigns.' 
+      return res.status(400).json({
+        success: false,
+        message:
+          "You must have at least one verified vehicle before applying to campaigns.",
       });
     }
 
@@ -111,32 +113,32 @@ export const applyToCampaign = async (req: Request, res: Response) => {
     });
 
     if (!campaign) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Campaign not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Campaign not found",
       });
     }
 
-    if (campaign.status !== 'active') {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Cannot apply to ${campaign.status} campaign. Campaign must be active.` 
+    if (campaign.status !== "active") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot apply to ${campaign.status} campaign. Campaign must be active.`,
       });
     }
 
     // Check if campaign dates are valid
     const now = new Date();
     if (campaign.startDate > now) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Campaign has not started yet.' 
+      return res.status(400).json({
+        success: false,
+        message: "Campaign has not started yet.",
       });
     }
 
     if (campaign.endDate < now) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Campaign has already ended.' 
+      return res.status(400).json({
+        success: false,
+        message: "Campaign has already ended.",
       });
     }
 
@@ -151,21 +153,24 @@ export const applyToCampaign = async (req: Request, res: Response) => {
     });
 
     if (existingApplication) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `You have already applied to this campaign. Current status: ${existingApplication.status}` 
+      return res.status(400).json({
+        success: false,
+        message: `You have already applied to this campaign. Current status: ${existingApplication.status}`,
       });
     }
 
     // Calculate matching score
-    const matchingScore = await calculateMatchingScore(driver.driverId, campaignId);
+    const matchingScore = await calculateMatchingScore(
+      driver.driverId,
+      campaignId
+    );
 
     // Create application
     const application = await prisma.driverCampaign.create({
       data: {
         campaignId,
         driverId: driver.driverId,
-        status: 'pending',
+        status: "pending",
         matchScore: matchingScore,
       },
       include: {
@@ -189,14 +194,14 @@ export const applyToCampaign = async (req: Request, res: Response) => {
 
     res.status(201).json({
       success: true,
-      message: 'Application submitted successfully',
+      message: "Application submitted successfully",
       data: application,
     });
   } catch (error) {
-    console.error('Error applying to campaign:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to apply to campaign' 
+    console.error("Error applying to campaign:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to apply to campaign",
     });
   }
 };
@@ -210,9 +215,9 @@ export const getMyApplications = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'User not authenticated' 
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
       });
     }
 
@@ -222,9 +227,9 @@ export const getMyApplications = async (req: Request, res: Response) => {
     });
 
     if (!driver) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Driver profile not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Driver profile not found",
       });
     }
 
@@ -236,7 +241,7 @@ export const getMyApplications = async (req: Request, res: Response) => {
       driverId: driver.driverId,
     };
 
-    if (status && typeof status === 'string') {
+    if (status && typeof status === "string") {
       where.status = status;
     }
 
@@ -256,22 +261,22 @@ export const getMyApplications = async (req: Request, res: Response) => {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     // Get statistics
     const stats = await prisma.driverCampaign.groupBy({
-      by: ['status'],
+      by: ["status"],
       where: { driverId: driver.driverId },
       _count: true,
     });
 
     const statistics = {
       total: applications.length,
-      pending: stats.find((s: any) => s.status === 'pending')?._count || 0,
-      approved: stats.find((s: any) => s.status === 'approved')?._count || 0,
-      rejected: stats.find((s: any) => s.status === 'rejected')?._count || 0,
+      pending: stats.find((s: any) => s.status === "pending")?._count || 0,
+      approved: stats.find((s: any) => s.status === "approved")?._count || 0,
+      rejected: stats.find((s: any) => s.status === "rejected")?._count || 0,
     };
 
     res.json({
@@ -280,10 +285,10 @@ export const getMyApplications = async (req: Request, res: Response) => {
       statistics,
     });
   } catch (error) {
-    console.error('Error fetching applications:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch applications' 
+    console.error("Error fetching applications:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch applications",
     });
   }
 };
@@ -298,9 +303,9 @@ export const getCampaignApplications = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'User not authenticated' 
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
       });
     }
 
@@ -310,9 +315,9 @@ export const getCampaignApplications = async (req: Request, res: Response) => {
     });
 
     if (!advertiser) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Advertiser profile not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Advertiser profile not found",
       });
     }
 
@@ -322,16 +327,17 @@ export const getCampaignApplications = async (req: Request, res: Response) => {
     });
 
     if (!campaign) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Campaign not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Campaign not found",
       });
     }
 
     if (campaign.advertiserId !== advertiser.advertiserId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'You do not have permission to view applications for this campaign' 
+      return res.status(403).json({
+        success: false,
+        message:
+          "You do not have permission to view applications for this campaign",
       });
     }
 
@@ -343,7 +349,7 @@ export const getCampaignApplications = async (req: Request, res: Response) => {
       campaignId,
     };
 
-    if (status && typeof status === 'string') {
+    if (status && typeof status === "string") {
       where.status = status;
     }
 
@@ -364,24 +370,24 @@ export const getCampaignApplications = async (req: Request, res: Response) => {
         },
       },
       orderBy: [
-        { status: 'asc' }, // pending first
-        { matchScore: 'desc' }, // then by matching score
-        { createdAt: 'desc' },
+        { status: "asc" }, // pending first
+        { matchScore: "desc" }, // then by matching score
+        { createdAt: "desc" },
       ],
     });
 
     // Get statistics
     const stats = await prisma.driverCampaign.groupBy({
-      by: ['status'],
+      by: ["status"],
       where: { campaignId },
       _count: true,
     });
 
     const statistics = {
       total: applications.length,
-      pending: stats.find((s: any) => s.status === 'pending')?._count || 0,
-      approved: stats.find((s: any) => s.status === 'approved')?._count || 0,
-      rejected: stats.find((s: any) => s.status === 'rejected')?._count || 0,
+      pending: stats.find((s: any) => s.status === "pending")?._count || 0,
+      approved: stats.find((s: any) => s.status === "approved")?._count || 0,
+      rejected: stats.find((s: any) => s.status === "rejected")?._count || 0,
     };
 
     res.json({
@@ -390,10 +396,10 @@ export const getCampaignApplications = async (req: Request, res: Response) => {
       statistics,
     });
   } catch (error) {
-    console.error('Error fetching campaign applications:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch campaign applications' 
+    console.error("Error fetching campaign applications:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch campaign applications",
     });
   }
 };
@@ -408,9 +414,9 @@ export const approveApplication = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'User not authenticated' 
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
       });
     }
 
@@ -420,9 +426,9 @@ export const approveApplication = async (req: Request, res: Response) => {
     });
 
     if (!advertiser) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Advertiser profile not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Advertiser profile not found",
       });
     }
 
@@ -432,16 +438,17 @@ export const approveApplication = async (req: Request, res: Response) => {
     });
 
     if (!campaign) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Campaign not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Campaign not found",
       });
     }
 
     if (campaign.advertiserId !== advertiser.advertiserId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'You do not have permission to manage applications for this campaign' 
+      return res.status(403).json({
+        success: false,
+        message:
+          "You do not have permission to manage applications for this campaign",
       });
     }
 
@@ -469,16 +476,16 @@ export const approveApplication = async (req: Request, res: Response) => {
     });
 
     if (!application) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Application not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Application not found",
       });
     }
 
-    if (application.status !== 'pending') {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Cannot approve application with status: ${application.status}` 
+    if (application.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot approve application with status: ${application.status}`,
       });
     }
 
@@ -491,7 +498,7 @@ export const approveApplication = async (req: Request, res: Response) => {
         },
       },
       data: {
-        status: 'approved',
+        status: "approved",
         approvedAt: new Date(),
       },
       include: {
@@ -512,14 +519,14 @@ export const approveApplication = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Application approved successfully',
+      message: "Application approved successfully",
       data: updatedApplication,
     });
   } catch (error) {
-    console.error('Error approving application:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to approve application' 
+    console.error("Error approving application:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to approve application",
     });
   }
 };
@@ -535,9 +542,9 @@ export const rejectApplication = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'User not authenticated' 
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
       });
     }
 
@@ -547,9 +554,9 @@ export const rejectApplication = async (req: Request, res: Response) => {
     });
 
     if (!advertiser) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Advertiser profile not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Advertiser profile not found",
       });
     }
 
@@ -559,16 +566,17 @@ export const rejectApplication = async (req: Request, res: Response) => {
     });
 
     if (!campaign) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Campaign not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Campaign not found",
       });
     }
 
     if (campaign.advertiserId !== advertiser.advertiserId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'You do not have permission to manage applications for this campaign' 
+      return res.status(403).json({
+        success: false,
+        message:
+          "You do not have permission to manage applications for this campaign",
       });
     }
 
@@ -583,16 +591,16 @@ export const rejectApplication = async (req: Request, res: Response) => {
     });
 
     if (!application) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Application not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Application not found",
       });
     }
 
-    if (application.status !== 'pending') {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Cannot reject application with status: ${application.status}` 
+    if (application.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot reject application with status: ${application.status}`,
       });
     }
 
@@ -605,7 +613,7 @@ export const rejectApplication = async (req: Request, res: Response) => {
         },
       },
       data: {
-        status: 'rejected',
+        status: "rejected",
         rejectionReason: reason,
       },
       include: {
@@ -626,14 +634,14 @@ export const rejectApplication = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Application rejected',
+      message: "Application rejected",
       data: updatedApplication,
     });
   } catch (error) {
-    console.error('Error rejecting application:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to reject application' 
+    console.error("Error rejecting application:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to reject application",
     });
   }
 };
@@ -648,9 +656,9 @@ export const cancelApplication = async (req: Request, res: Response) => {
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'User not authenticated' 
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
       });
     }
 
@@ -660,9 +668,9 @@ export const cancelApplication = async (req: Request, res: Response) => {
     });
 
     if (!driver) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Driver profile not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Driver profile not found",
       });
     }
 
@@ -677,17 +685,17 @@ export const cancelApplication = async (req: Request, res: Response) => {
     });
 
     if (!application) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Application not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Application not found",
       });
     }
 
     // Only allow cancellation if application is pending
-    if (application.status !== 'pending') {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Cannot cancel application with status: ${application.status}` 
+    if (application.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot cancel application with status: ${application.status}`,
       });
     }
 
@@ -703,13 +711,13 @@ export const cancelApplication = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: 'Application cancelled successfully',
+      message: "Application cancelled successfully",
     });
   } catch (error) {
-    console.error('Error cancelling application:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to cancel application' 
+    console.error("Error cancelling application:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to cancel application",
     });
   }
 };

@@ -11,6 +11,7 @@ The Car Wrap Ads platform now has a secure admin system with three layers of pro
 ## Admin User Type
 
 The system now supports three user types:
+
 - `driver`: Regular drivers who can apply to campaigns
 - `advertiser`: Businesses who create campaigns
 - `admin`: System administrators who manage the platform
@@ -18,6 +19,7 @@ The system now supports three user types:
 ## Admin Capabilities
 
 Admins have special permissions to:
+
 - ✅ **Verify vehicles**: Approve vehicles for campaign participation
 - ✅ **Unverify vehicles**: Revoke vehicle verification status
 - ✅ **Create additional admins**: Invite new team members to admin role
@@ -31,8 +33,11 @@ The `/api/auth/register` endpoint only accepts `driver` or `advertiser` as userT
 
 ```typescript
 // Public registration is restricted
-if (!['driver', 'advertiser'].includes(userType)) {
-  throw new AppError('Invalid user type. Only driver and advertiser registration is allowed.', 400);
+if (!["driver", "advertiser"].includes(userType)) {
+  throw new AppError(
+    "Invalid user type. Only driver and advertiser registration is allowed.",
+    400
+  );
 }
 ```
 
@@ -66,6 +71,7 @@ ADMIN_PASSWORD=YourSecurePassword123!
 ```
 
 Then run:
+
 ```bash
 npm run seed
 ```
@@ -91,6 +97,7 @@ POST /api/auth/admin/create
 #### Authorization
 
 Requires:
+
 - Valid JWT token from an existing admin
 - `Authorization: Bearer <admin_token>` header
 
@@ -168,6 +175,7 @@ npm run seed
 ```
 
 **Output**:
+
 ```
 🌱 Starting database seeding...
 ✅ Admin user created/updated:
@@ -186,6 +194,7 @@ npm run seed
 ### Step 2: Login as Admin
 
 **Request**:
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
@@ -196,6 +205,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 ```
 
 **PowerShell**:
+
 ```powershell
 $body = @{
     email = "admin@carwrapad.com"
@@ -212,6 +222,7 @@ Write-Host "Admin Token: $adminToken"
 ```
 
 **Response**:
+
 ```json
 {
   "status": "success",
@@ -231,12 +242,14 @@ Write-Host "Admin Token: $adminToken"
 ### Step 3: Verify a Vehicle (Admin Function)
 
 **Request**:
+
 ```bash
 curl -X PATCH http://localhost:3000/api/vehicles/{vehicleId}/verify \
   -H "Authorization: Bearer <admin_token>"
 ```
 
 **PowerShell**:
+
 ```powershell
 $headers = @{
     Authorization = "Bearer $adminToken"
@@ -250,6 +263,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/vehicles/$vehicleId/verify" `
 ### Step 4: Create Additional Admins
 
 **Request**:
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/admin/create \
   -H "Authorization: Bearer <admin_token>" \
@@ -261,6 +275,7 @@ curl -X POST http://localhost:3000/api/auth/admin/create \
 ```
 
 **PowerShell**:
+
 ```powershell
 $headers = @{
     Authorization = "Bearer $adminToken"
@@ -285,6 +300,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/auth/admin/create" `
 **Request**: POST `{{base_url}}/api/auth/register`
 
 **Body**:
+
 ```json
 {
   "email": "hacker@evil.com",
@@ -294,6 +310,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/auth/admin/create" `
 ```
 
 **Expected**: 400 Bad Request
+
 ```json
 {
   "status": "error",
@@ -306,6 +323,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/auth/admin/create" `
 **Request**: POST `{{base_url}}/api/auth/login`
 
 **Body**:
+
 ```json
 {
   "email": "admin@carwrapad.com",
@@ -316,21 +334,22 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/auth/admin/create" `
 **Expected**: 200 OK with admin token
 
 **Postman Test Script**:
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("User type is admin", function () {
-    var jsonData = pm.response.json();
-    pm.expect(jsonData.data.user.userType).to.eql("admin");
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.data.user.userType).to.eql("admin");
 });
 
 // Save admin token
 if (pm.response.code === 200) {
-    var jsonData = pm.response.json();
-    pm.environment.set("admin_token", jsonData.data.token);
-    pm.environment.set("admin_user_id", jsonData.data.user.userId);
+  var jsonData = pm.response.json();
+  pm.environment.set("admin_token", jsonData.data.token);
+  pm.environment.set("admin_user_id", jsonData.data.user.userId);
 }
 ```
 
@@ -339,6 +358,7 @@ if (pm.response.code === 200) {
 **Request**: PATCH `{{base_url}}/api/vehicles/{{vehicle_id}}/verify`
 
 **Headers**:
+
 ```
 Authorization: Bearer {{admin_token}}
 ```
@@ -346,14 +366,15 @@ Authorization: Bearer {{admin_token}}
 **Expected**: 200 OK with verified vehicle
 
 **Postman Test Script**:
+
 ```javascript
 pm.test("Status is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
 pm.test("Vehicle is verified", function () {
-    var jsonData = pm.response.json();
-    pm.expect(jsonData.data.vehicle.isVerified).to.be.true;
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.data.vehicle.isVerified).to.be.true;
 });
 ```
 
@@ -362,11 +383,13 @@ pm.test("Vehicle is verified", function () {
 **Request**: POST `{{base_url}}/api/auth/admin/create`
 
 **Headers**:
+
 ```
 Authorization: Bearer {{admin_token}}
 ```
 
 **Body**:
+
 ```json
 {
   "email": "admin2@carwrapad.com",
@@ -377,21 +400,22 @@ Authorization: Bearer {{admin_token}}
 **Expected**: 201 Created
 
 **Postman Test Script**:
+
 ```javascript
 pm.test("Status is 201", function () {
-    pm.response.to.have.status(201);
+  pm.response.to.have.status(201);
 });
 
 pm.test("Admin created successfully", function () {
-    var jsonData = pm.response.json();
-    pm.expect(jsonData.data.user.userType).to.eql("admin");
-    pm.expect(jsonData.data.user.email).to.eql("admin2@carwrapad.com");
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.data.user.userType).to.eql("admin");
+  pm.expect(jsonData.data.user.email).to.eql("admin2@carwrapad.com");
 });
 
 // Save second admin ID
 if (pm.response.code === 201) {
-    var jsonData = pm.response.json();
-    pm.environment.set("admin2_user_id", jsonData.data.user.userId);
+  var jsonData = pm.response.json();
+  pm.environment.set("admin2_user_id", jsonData.data.user.userId);
 }
 ```
 
@@ -400,11 +424,13 @@ if (pm.response.code === 201) {
 **Request**: POST `{{base_url}}/api/auth/admin/create`
 
 **Headers**:
+
 ```
 Authorization: Bearer {{driver_token}}
 ```
 
 **Body**:
+
 ```json
 {
   "email": "admin3@carwrapad.com",
@@ -413,6 +439,7 @@ Authorization: Bearer {{driver_token}}
 ```
 
 **Expected**: 403 Forbidden
+
 ```json
 {
   "status": "error",
@@ -434,6 +461,7 @@ Authorization: Bearer {{driver_token}}
 ### 2. Use Strong Passwords
 
 For production admins, enforce:
+
 - Minimum 12 characters
 - Mix of uppercase, lowercase, numbers, special characters
 - No dictionary words
@@ -452,6 +480,7 @@ ADMIN_PASSWORD=VerySecurePassword123!@#
 ### 4. Audit Logging
 
 Consider adding audit logs for admin actions:
+
 - Track admin logins
 - Log vehicle verifications
 - Record admin user creations
@@ -460,6 +489,7 @@ Consider adding audit logs for admin actions:
 ### 5. Rate Limiting
 
 Implement rate limiting on admin endpoints to prevent brute force:
+
 - Limit login attempts
 - Throttle admin creation requests
 - Monitor for unusual patterns
@@ -470,21 +500,22 @@ For enhanced security, consider implementing 2FA for admin accounts.
 
 ## API Endpoints Summary
 
-| Endpoint | Method | Auth | Role | Description |
-|----------|--------|------|------|-------------|
-| `/api/auth/register` | POST | ❌ | Public | Register driver/advertiser (admin blocked) |
-| `/api/auth/login` | POST | ❌ | Public | Login any user type |
-| `/api/auth/logout` | POST | ✅ | Any | Logout (client-side token removal) |
-| `/api/auth/me` | GET | ✅ | Any | Get current user info |
-| `/api/auth/admin/create` | POST | ✅ | Admin | Create new admin user |
-| `/api/vehicles/:id/verify` | PATCH | ✅ | Admin | Verify vehicle |
-| `/api/vehicles/:id/unverify` | PATCH | ✅ | Admin | Unverify vehicle |
+| Endpoint                     | Method | Auth | Role   | Description                                |
+| ---------------------------- | ------ | ---- | ------ | ------------------------------------------ |
+| `/api/auth/register`         | POST   | ❌   | Public | Register driver/advertiser (admin blocked) |
+| `/api/auth/login`            | POST   | ❌   | Public | Login any user type                        |
+| `/api/auth/logout`           | POST   | ✅   | Any    | Logout (client-side token removal)         |
+| `/api/auth/me`               | GET    | ✅   | Any    | Get current user info                      |
+| `/api/auth/admin/create`     | POST   | ✅   | Admin  | Create new admin user                      |
+| `/api/vehicles/:id/verify`   | PATCH  | ✅   | Admin  | Verify vehicle                             |
+| `/api/vehicles/:id/unverify` | PATCH  | ✅   | Admin  | Unverify vehicle                           |
 
 ## Troubleshooting
 
 ### Problem: Seed script fails
 
 **Solution**: Check database connection and ensure migrations are up to date
+
 ```bash
 npx prisma migrate dev
 npm run seed
@@ -493,6 +524,7 @@ npm run seed
 ### Problem: Cannot login as admin
 
 **Solution**: Verify admin was created by seed script
+
 ```bash
 # Check database
 npx prisma studio
@@ -508,6 +540,7 @@ npx prisma studio
 ### Problem: Forgot admin password
 
 **Solution**: Run seed script again (it will update the password)
+
 ```bash
 npm run seed
 ```
@@ -515,23 +548,29 @@ npm run seed
 ## File Changes Summary
 
 ### New Files Created
+
 1. `prisma/seed.ts` - Database seeding script for first admin
 2. `ADMIN_SYSTEM.md` - This documentation file
 
 ### Modified Files
+
 1. `src/controllers/auth.controller.ts`
+
    - Modified `register()` to block admin user type
    - Added `createAdmin()` function for admin-only user creation
 
 2. `src/routes/auth.routes.ts`
+
    - Added `createAdminValidation` rules
    - Added POST `/admin/create` route with admin authorization
 
 3. `package.json`
+
    - Added `"seed": "ts-node prisma/seed.ts"` script
    - Added `"prisma": { "seed": "ts-node prisma/seed.ts" }` configuration
 
 4. `prisma/schema.prisma` (Previously updated)
+
    - Added `admin` to UserType enum
 
 5. All type definition files (Previously updated)

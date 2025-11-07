@@ -37,6 +37,7 @@ car_wrap_ads_be/
 ## ✅ Completed Tasks
 
 ### Dependencies Installed
+
 - ✅ express
 - ✅ @prisma/client
 - ✅ bcrypt
@@ -47,6 +48,7 @@ car_wrap_ads_be/
 - ✅ TypeScript + types
 
 ### Folder Structure
+
 - ✅ `/config` - Configuration files
 - ✅ `/middleware` - Auth, validation, error handling
 - ✅ `/routes` - API routes
@@ -55,6 +57,7 @@ car_wrap_ads_be/
 - ✅ `/utils` - Helper functions (PostGIS utils)
 
 ### Server Configuration
+
 - ✅ Server running on port **5000**
 - ✅ CORS enabled
 - ✅ JSON body parser
@@ -65,22 +68,27 @@ car_wrap_ads_be/
 ## 🚀 Getting Started
 
 ### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 2. Configure Environment
+
 Copy `.env.example` to `.env` and update with your settings:
+
 ```bash
 cp .env.example .env
 ```
 
 ### 3. Run Database Migrations
+
 ```bash
 npx prisma migrate dev
 ```
 
 ### 4. Start Development Server
+
 ```bash
 npm run dev
 ```
@@ -90,12 +98,14 @@ Server will start on: http://localhost:5000
 ## 📡 Available Endpoints
 
 ### Health Check
+
 ```http
-GET / 
+GET /
 GET /health
 ```
 
 ### Authentication (Placeholder)
+
 ```http
 POST /api/auth/register
 POST /api/auth/login
@@ -120,6 +130,7 @@ JWT_EXPIRES_IN=7d
 ## 🗄️ Database Schema
 
 Complete database schema with:
+
 - Users & Authentication
 - Driver Profiles (with GPS location)
 - Vehicles
@@ -141,15 +152,18 @@ npm start        # Start production server
 ## 📦 Middleware
 
 ### Authentication (`middleware/auth.ts`)
+
 - `authenticate` - Verify JWT token
 - `authorize(...roles)` - Check user role permissions
 
 ### Error Handling (`middleware/errorHandler.ts`)
+
 - Custom `AppError` class
 - Global error handler
 - 404 Not Found handler
 
 ### Validation (`middleware/validator.ts`)
+
 - Request validation using express-validator
 
 ## 🔐 Security Features
@@ -173,12 +187,14 @@ npm start        # Start production server
 ## 🧪 Testing
 
 Test the server:
+
 ```bash
 curl http://localhost:5000
 curl http://localhost:5000/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "success",

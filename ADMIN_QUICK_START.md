@@ -3,15 +3,18 @@
 ## 🚀 Quick Setup (3 Steps)
 
 ### 1. Create First Admin
+
 ```bash
 npm run seed
 ```
 
 **Default Credentials**:
+
 - Email: `admin@carwrapad.com`
 - Password: `Admin123!`
 
 ### 2. Login as Admin
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
@@ -60,12 +63,12 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/vehicles/$vehicleId/verify" `
 
 ## 🔐 Admin Capabilities
 
-| Action | Endpoint | Method |
-|--------|----------|--------|
-| Verify Vehicle | `/api/vehicles/:id/verify` | PATCH |
-| Unverify Vehicle | `/api/vehicles/:id/unverify` | PATCH |
-| Create Admin | `/api/auth/admin/create` | POST |
-| Get Profile | `/api/auth/me` | GET |
+| Action           | Endpoint                     | Method |
+| ---------------- | ---------------------------- | ------ |
+| Verify Vehicle   | `/api/vehicles/:id/verify`   | PATCH  |
+| Unverify Vehicle | `/api/vehicles/:id/unverify` | PATCH  |
+| Create Admin     | `/api/auth/admin/create`     | POST   |
+| Get Profile      | `/api/auth/me`               | GET    |
 
 ## ⚠️ Important Notes
 
@@ -82,15 +85,18 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/vehicles/$vehicleId/verify" `
 ## 🐛 Troubleshooting
 
 **Can't login?** Re-run seed script:
+
 ```bash
 npm run seed
 ```
 
 **Need to reset admin password?** Update .env and re-seed:
+
 ```env
 ADMIN_EMAIL=admin@carwrapad.com
 ADMIN_PASSWORD=NewPassword123!
 ```
+
 ```bash
 npm run seed
 ```

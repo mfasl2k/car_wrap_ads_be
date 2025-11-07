@@ -220,7 +220,7 @@ export const createAdmin = asyncHandler(
       data: {
         email,
         passwordHash: hashedPassword,
-        userType: 'admin',
+        userType: "admin",
       },
       select: {
         userId: true,

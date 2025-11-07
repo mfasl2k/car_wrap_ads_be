@@ -400,7 +400,7 @@ export const uploadVehiclePhoto = asyncHandler(
     res.status(200).json({
       status: "success",
       message: "Vehicle photo uploaded successfully",
-      data: { 
+      data: {
         vehicle,
         imageUrl: req.file.path,
       },

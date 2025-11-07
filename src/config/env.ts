@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 // Load environment variables
 dotenv.config();
@@ -23,12 +23,12 @@ const getEnvVar = (key: string, defaultValue?: string): string => {
 };
 
 export const config: EnvConfig = {
-  PORT: parseInt(getEnvVar('PORT', '5000'), 10),
-  DATABASE_URL: getEnvVar('DATABASE_URL'),
-  JWT_SECRET: getEnvVar('JWT_SECRET', 'your-secret-key-change-in-production'),
-  JWT_EXPIRES_IN: getEnvVar('JWT_EXPIRES_IN', '7d'),
-  NODE_ENV: getEnvVar('NODE_ENV', 'development'),
-  CLOUDINARY_CLOUD_NAME: getEnvVar('CLOUDINARY_CLOUD_NAME'),
-  CLOUDINARY_API_KEY: getEnvVar('CLOUDINARY_API_KEY'),
-  CLOUDINARY_API_SECRET: getEnvVar('CLOUDINARY_API_SECRET'),
+  PORT: parseInt(getEnvVar("PORT", "5000"), 10),
+  DATABASE_URL: getEnvVar("DATABASE_URL"),
+  JWT_SECRET: getEnvVar("JWT_SECRET", "your-secret-key-change-in-production"),
+  JWT_EXPIRES_IN: getEnvVar("JWT_EXPIRES_IN", "7d"),
+  NODE_ENV: getEnvVar("NODE_ENV", "development"),
+  CLOUDINARY_CLOUD_NAME: getEnvVar("CLOUDINARY_CLOUD_NAME"),
+  CLOUDINARY_API_KEY: getEnvVar("CLOUDINARY_API_KEY"),
+  CLOUDINARY_API_SECRET: getEnvVar("CLOUDINARY_API_SECRET"),
 };

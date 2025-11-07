@@ -3,6 +3,7 @@
 This document provides comprehensive testing instructions for the Driver Application System APIs.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Authentication](#authentication)
 - [Driver Application Endpoints](#driver-application-endpoints)
@@ -15,17 +16,21 @@ This document provides comprehensive testing instructions for the Driver Applica
 ## Overview
 
 The Driver Application System allows drivers to:
+
 - Apply to active campaigns
 - View their application history
 - Cancel pending applications
 
 And allows advertisers to:
+
 - View applications for their campaigns
 - Approve driver applications
 - Reject driver applications with reasons
 
 ### Matching Score Algorithm
+
 When a driver applies to a campaign, a matching score (0-100) is calculated based on:
+
 - **Vehicle Verification (50 points)**: Has verified vehicle
 - **Driver Rating (30 points)**: Based on average rating (0-5 scale, normalized)
 - **Active Driver Bonus (20 points)**: Verified vehicle status
@@ -41,6 +46,7 @@ Authorization: Bearer <your_jwt_token>
 ```
 
 **Role-Based Access:**
+
 - Driver endpoints require `userType: 'driver'`
 - Advertiser endpoints require `userType: 'advertiser'`
 
@@ -57,6 +63,7 @@ Apply to an active campaign.
 **Access:** Private (Driver only)
 
 **Prerequisites:**
+
 - Driver must have a profile
 - Driver must have at least one registered vehicle
 - At least one vehicle must be verified
@@ -65,12 +72,14 @@ Apply to an active campaign.
 - Driver cannot have already applied to this campaign
 
 **Request:**
+
 ```http
 POST /api/campaigns/550e8400-e29b-41d4-a716-446655440000/apply
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -80,7 +89,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
     "driverId": "driver-uuid-here",
     "campaignId": "550e8400-e29b-41d4-a716-446655440000",
     "status": "pending",
-    "matchScore": 85.00,
+    "matchScore": 85.0,
     "appliedAt": "2025-11-06T10:30:00.000Z",
     "createdAt": "2025-11-06T10:30:00.000Z",
     "campaign": {
@@ -166,15 +175,18 @@ Get all applications for the authenticated driver.
 **Access:** Private (Driver only)
 
 **Query Parameters:**
+
 - `status` (optional): Filter by status (pending, approved, rejected, active, completed)
 
 **Request:**
+
 ```http
 GET /api/campaigns/applications/my?status=pending
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -223,16 +235,19 @@ Cancel a pending application.
 **Access:** Private (Driver only)
 
 **Prerequisites:**
+
 - Application must exist
 - Application status must be 'pending'
 
 **Request:**
+
 ```http
 DELETE /api/campaigns/550e8400-e29b-41d4-a716-446655440000/apply
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -269,18 +284,22 @@ View all applications for a specific campaign.
 **Access:** Private (Advertiser only)
 
 **Prerequisites:**
+
 - Campaign must belong to the advertiser
 
 **Query Parameters:**
+
 - `status` (optional): Filter by status (pending, approved, rejected, active, completed)
 
 **Request:**
+
 ```http
 GET /api/campaigns/550e8400-e29b-41d4-a716-446655440000/applications?status=pending
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -348,17 +367,20 @@ Approve a driver's application to a campaign.
 **Access:** Private (Advertiser only)
 
 **Prerequisites:**
+
 - Campaign must belong to the advertiser
 - Application must exist
 - Application status must be 'pending'
 
 **Request:**
+
 ```http
 PATCH /api/campaigns/550e8400-e29b-41d4-a716-446655440000/applications/driver-uuid-here/approve
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -430,11 +452,13 @@ Reject a driver's application with an optional reason.
 **Access:** Private (Advertiser only)
 
 **Prerequisites:**
+
 - Campaign must belong to the advertiser
 - Application must exist
 - Application status must be 'pending'
 
 **Request:**
+
 ```http
 PATCH /api/campaigns/550e8400-e29b-41d4-a716-446655440000/applications/driver-uuid-here/reject
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -446,6 +470,7 @@ Content-Type: application/json
 ```
 
 **Success Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -484,6 +509,7 @@ Content-Type: application/json
 ```
 
 **Validation Rules:**
+
 - `reason` (optional): String, 10-500 characters
 
 **Error Responses:**
@@ -612,13 +638,13 @@ GET /api/campaigns/my
 
 ### Common Error Codes
 
-| Status Code | Meaning | Common Causes |
-|-------------|---------|---------------|
-| 400 | Bad Request | Validation error, business logic constraint |
-| 401 | Unauthorized | Missing or invalid token |
-| 403 | Forbidden | Insufficient permissions (wrong user type) |
-| 404 | Not Found | Resource doesn't exist |
-| 500 | Internal Server Error | Server-side error |
+| Status Code | Meaning               | Common Causes                               |
+| ----------- | --------------------- | ------------------------------------------- |
+| 400         | Bad Request           | Validation error, business logic constraint |
+| 401         | Unauthorized          | Missing or invalid token                    |
+| 403         | Forbidden             | Insufficient permissions (wrong user type)  |
+| 404         | Not Found             | Resource doesn't exist                      |
+| 500         | Internal Server Error | Server-side error                           |
 
 ### Validation Errors
 
@@ -647,6 +673,7 @@ rejected
 ```
 
 **Status Definitions:**
+
 - `pending`: Application submitted, awaiting advertiser review
 - `approved`: Advertiser approved, driver can start campaign
 - `active`: Driver actively participating in campaign
@@ -706,7 +733,7 @@ Invoke-RestMethod -Uri "$API_URL/campaigns/$CAMPAIGN_ID/applications/$DRIVER_ID/
 1. **Test in Order**: Follow the workflow from driver application → advertiser review
 2. **Use Postman Collections**: Save requests for quick re-testing
 3. **Check Statistics**: Verify the statistics object returns correct counts
-4. **Test Edge Cases**: 
+4. **Test Edge Cases**:
    - Apply to inactive campaign
    - Apply without verified vehicle
    - Approve already rejected application
@@ -718,6 +745,7 @@ Invoke-RestMethod -Uri "$API_URL/campaigns/$CAMPAIGN_ID/applications/$DRIVER_ID/
 ## Next Steps
 
 After successful testing of the Application System:
+
 1. ✅ Campaign CRUD operations
 2. ✅ Driver Application System
 3. 🔄 **Next**: Target Area Management (PostGIS polygons)
@@ -726,4 +754,4 @@ After successful testing of the Application System:
 
 ---
 
-*Last Updated: November 6, 2025*
+_Last Updated: November 6, 2025_

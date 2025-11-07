@@ -8,6 +8,7 @@
    - API Key
    - API Secret
 3. **Add to your `.env` file:**
+
 ```bash
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
@@ -19,20 +20,24 @@ CLOUDINARY_API_SECRET=your_api_secret
 ## API Endpoints
 
 ### 1. Upload Vehicle Photo
+
 **POST** `/api/vehicles/:vehicleId/upload-photo`
 
 **Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 Content-Type: multipart/form-data
 ```
 
 **Form Data:**
+
 - Key: `photo`
 - Type: File
 - Value: Select image file (jpg, jpeg, png, webp)
 
 **Example using Postman:**
+
 1. Select POST method
 2. URL: `http://localhost:5000/api/vehicles/:vehicleId/upload-photo`
 3. Replace `:vehicleId` with actual vehicle ID
@@ -43,6 +48,7 @@ Content-Type: multipart/form-data
 8. Click Send
 
 **Example using cURL:**
+
 ```bash
 curl -X POST http://localhost:5000/api/vehicles/VEHICLE_ID/upload-photo \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
@@ -50,6 +56,7 @@ curl -X POST http://localhost:5000/api/vehicles/VEHICLE_ID/upload-photo \
 ```
 
 **PowerShell:**
+
 ```powershell
 $headers = @{
     Authorization = "Bearer YOUR_JWT_TOKEN"
@@ -66,6 +73,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/upload-pho
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "status": "success",
@@ -93,6 +101,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/upload-pho
 **Error Responses:**
 
 **400 - No Image Uploaded:**
+
 ```json
 {
   "status": "error",
@@ -101,6 +110,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/upload-pho
 ```
 
 **400 - Invalid File Type:**
+
 ```json
 {
   "status": "error",
@@ -109,6 +119,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/upload-pho
 ```
 
 **400 - File Too Large:**
+
 ```json
 {
   "status": "error",
@@ -117,6 +128,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/upload-pho
 ```
 
 **401 - Not Authenticated:**
+
 ```json
 {
   "status": "error",
@@ -125,6 +137,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/upload-pho
 ```
 
 **403 - Not Your Vehicle:**
+
 ```json
 {
   "status": "error",
@@ -133,6 +146,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/upload-pho
 ```
 
 **404 - Vehicle Not Found:**
+
 ```json
 {
   "status": "error",
@@ -143,9 +157,11 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/upload-pho
 ---
 
 ### 2. Delete Vehicle Photo
+
 **DELETE** `/api/vehicles/:vehicleId/photo`
 
 **Headers:**
+
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
@@ -153,6 +169,7 @@ Authorization: Bearer YOUR_JWT_TOKEN
 **No body needed**
 
 **Example using Postman:**
+
 1. Select DELETE method
 2. URL: `http://localhost:5000/api/vehicles/:vehicleId/photo`
 3. Replace `:vehicleId` with actual vehicle ID
@@ -160,12 +177,14 @@ Authorization: Bearer YOUR_JWT_TOKEN
 5. Click Send
 
 **Example using cURL:**
+
 ```bash
 curl -X DELETE http://localhost:5000/api/vehicles/VEHICLE_ID/photo \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
 **PowerShell:**
+
 ```powershell
 $headers = @{
     Authorization = "Bearer YOUR_JWT_TOKEN"
@@ -177,6 +196,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/photo" `
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "status": "success",
@@ -203,6 +223,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/photo" `
 **Error Responses:**
 
 **400 - No Photo to Delete:**
+
 ```json
 {
   "status": "error",
@@ -211,6 +232,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/photo" `
 ```
 
 **404 - Vehicle Not Found:**
+
 ```json
 {
   "status": "error",
@@ -225,6 +247,7 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/vehicles/VEHICLE_ID/photo" `
 ### Complete Test Sequence:
 
 **1. Register and Login**
+
 ```json
 POST /api/auth/register
 {
@@ -233,9 +256,11 @@ POST /api/auth/register
   "userType": "driver"
 }
 ```
-*Copy the JWT token from response*
+
+_Copy the JWT token from response_
 
 **2. Create Driver Profile**
+
 ```json
 POST /api/drivers
 Authorization: Bearer YOUR_TOKEN
@@ -248,6 +273,7 @@ Authorization: Bearer YOUR_TOKEN
 ```
 
 **3. Create Vehicle**
+
 ```json
 POST /api/vehicles
 Authorization: Bearer YOUR_TOKEN
@@ -261,9 +287,11 @@ Authorization: Bearer YOUR_TOKEN
   "sizeCategory": "medium"
 }
 ```
-*Copy the vehicleId from response*
+
+_Copy the vehicleId from response_
 
 **4. Upload Vehicle Photo**
+
 ```
 POST /api/vehicles/:vehicleId/upload-photo
 Authorization: Bearer YOUR_TOKEN
@@ -271,29 +299,35 @@ Form-data: photo = [Select image file]
 ```
 
 **5. Verify Photo URL**
+
 - Copy the `photoUrl` from response
 - Paste URL in browser to view uploaded image
 - Image should be optimized and resized by Cloudinary
 
 **6. Get Vehicle Details**
+
 ```
 GET /api/vehicles/:vehicleId
 Authorization: Bearer YOUR_TOKEN
 ```
-*Verify photoUrl is present*
+
+_Verify photoUrl is present_
 
 **7. Delete Photo (Optional)**
+
 ```
 DELETE /api/vehicles/:vehicleId/photo
 Authorization: Bearer YOUR_TOKEN
 ```
-*Verify photoUrl is now null*
+
+_Verify photoUrl is now null_
 
 ---
 
 ## Image Specifications
 
 ### Vehicle Photos:
+
 - **Allowed formats:** JPG, JPEG, PNG, WebP
 - **Max file size:** 5MB
 - **Automatic optimization:**
@@ -303,6 +337,7 @@ Authorization: Bearer YOUR_TOKEN
 - **Storage folder:** `car_wrap_ads/vehicles/`
 
 ### Benefits of Cloudinary:
+
 ✅ Automatic image optimization
 ✅ Responsive image delivery
 ✅ CDN for fast loading worldwide
@@ -315,18 +350,23 @@ Authorization: Bearer YOUR_TOKEN
 ## Troubleshooting
 
 ### Error: "Missing required environment variable: CLOUDINARY_CLOUD_NAME"
+
 **Solution:** Make sure you have added Cloudinary credentials to your `.env` file
 
 ### Error: "Only image files are allowed!"
+
 **Solution:** Make sure you're uploading an image file (jpg, png, jpeg, webp)
 
 ### Error: "File too large"
+
 **Solution:** Compress your image or use a smaller file (max 5MB)
 
 ### Error: "Cloudinary configuration error"
+
 **Solution:** Verify your Cloudinary credentials are correct
 
 ### Upload works but can't see image in Cloudinary Dashboard
+
 **Solution:** Check your Cloudinary console under "Media Library" → "car_wrap_ads" → "vehicles"
 
 ---
@@ -334,13 +374,13 @@ Authorization: Bearer YOUR_TOKEN
 ## Frontend Implementation Example (React)
 
 ```jsx
-import { useState } from 'react';
-import axios from 'axios';
+import { useState } from "react";
+import axios from "axios";
 
 function VehiclePhotoUpload({ vehicleId, token }) {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [photoUrl, setPhotoUrl] = useState('');
+  const [photoUrl, setPhotoUrl] = useState("");
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -348,12 +388,12 @@ function VehiclePhotoUpload({ vehicleId, token }) {
 
   const handleUpload = async () => {
     if (!file) {
-      alert('Please select a file');
+      alert("Please select a file");
       return;
     }
 
     const formData = new FormData();
-    formData.append('photo', file);
+    formData.append("photo", file);
 
     setUploading(true);
 
@@ -363,17 +403,17 @@ function VehiclePhotoUpload({ vehicleId, token }) {
         formData,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
       setPhotoUrl(response.data.data.imageUrl);
-      alert('Photo uploaded successfully!');
+      alert("Photo uploaded successfully!");
     } catch (error) {
-      console.error('Upload error:', error);
-      alert('Failed to upload photo');
+      console.error("Upload error:", error);
+      alert("Failed to upload photo");
     } finally {
       setUploading(false);
     }
@@ -383,11 +423,11 @@ function VehiclePhotoUpload({ vehicleId, token }) {
     <div>
       <input type="file" accept="image/*" onChange={handleFileChange} />
       <button onClick={handleUpload} disabled={uploading}>
-        {uploading ? 'Uploading...' : 'Upload Photo'}
+        {uploading ? "Uploading..." : "Upload Photo"}
       </button>
       {photoUrl && (
         <div>
-          <img src={photoUrl} alt="Vehicle" style={{ maxWidth: '400px' }} />
+          <img src={photoUrl} alt="Vehicle" style={{ maxWidth: "400px" }} />
         </div>
       )}
     </div>
@@ -400,6 +440,7 @@ function VehiclePhotoUpload({ vehicleId, token }) {
 ## Next Steps
 
 After vehicle photo upload is working, you can extend this to:
+
 - **Campaign wrap design uploads** (already configured in middleware)
 - **Driver profile pictures**
 - **Multiple images per vehicle** (gallery)

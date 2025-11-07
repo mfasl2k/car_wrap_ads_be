@@ -3,7 +3,7 @@ export interface User {
   userId: string;
   email: string;
   passwordHash: string;
-  userType: 'driver' | 'advertiser' | 'admin';
+  userType: "driver" | "advertiser" | "admin";
   isActive: boolean;
   isVerified: boolean;
   createdAt: Date;
@@ -130,7 +130,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  userType: 'driver' | 'advertiser' | 'admin';
+  userType: "driver" | "advertiser" | "admin";
   // Additional fields based on userType
   firstName?: string;
   lastName?: string;
@@ -142,20 +142,30 @@ export interface AuthResponse {
   user: {
     userId: string;
     email: string;
-    userType: 'driver' | 'advertiser' | 'admin';
+    userType: "driver" | "advertiser" | "admin";
   };
 }
 
 // API Response Types
 export interface ApiResponse<T = any> {
-  status: 'success' | 'error';
+  status: "success" | "error";
   message?: string;
   data?: T;
   errors?: any[];
 }
 
 // Campaign Types
-export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed' | 'cancelled';
-export type DriverCampaignStatus = 'pending' | 'approved' | 'active' | 'completed' | 'rejected';
-export type VehicleType = 'sedan' | 'suv' | 'van' | 'truck' | 'hatchback';
-export type SizeCategory = 'small' | 'medium' | 'large';
+export type CampaignStatus =
+  | "draft"
+  | "active"
+  | "paused"
+  | "completed"
+  | "cancelled";
+export type DriverCampaignStatus =
+  | "pending"
+  | "approved"
+  | "active"
+  | "completed"
+  | "rejected";
+export type VehicleType = "sedan" | "suv" | "van" | "truck" | "hatchback";
+export type SizeCategory = "small" | "medium" | "large";
