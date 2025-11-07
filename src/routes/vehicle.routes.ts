@@ -7,9 +7,14 @@ import {
   updateVehicle,
   deleteVehicle,
   getAllVehicles,
+  uploadVehiclePhoto,
+  deleteVehiclePhoto,
+  verifyVehicle,
+  unverifyVehicle,
 } from "../controllers/vehicle.controller";
 import { authenticate, authorize } from "../middleware/auth";
 import { validate } from "../middleware/validator";
+import { uploadVehiclePhoto as uploadMiddleware } from "../middleware/upload";
 
 const router = Router();
 
@@ -105,7 +110,20 @@ router.put(
 );
 router.delete("/:vehicleId", authorize("driver"), deleteVehicle);
 
-// Public/Admin routes
+// Image upload routes
+router.post(
+  "/:vehicleId/upload-photo",
+  authorize("driver"),
+  uploadMiddleware.single("photo"),
+  uploadVehiclePhoto
+);
+router.delete("/:vehicleId/photo", authorize("driver"), deleteVehiclePhoto);
+
+// Vehicle verification routes (Admin only)
+router.patch("/:vehicleId/verify", authorize("admin"), verifyVehicle);
+router.patch("/:vehicleId/unverify", authorize("admin"), unverifyVehicle);
+
+// Public routes
 router.get("/", getAllVehicles);
 router.get("/:vehicleId", getVehicleById);
 

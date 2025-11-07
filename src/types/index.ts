@@ -3,7 +3,7 @@ export interface User {
   userId: string;
   email: string;
   passwordHash: string;
-  userType: 'driver' | 'advertiser';
+  userType: 'driver' | 'advertiser' | 'admin';
   isActive: boolean;
   isVerified: boolean;
   createdAt: Date;
@@ -130,7 +130,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  userType: 'driver' | 'advertiser';
+  userType: 'driver' | 'advertiser' | 'admin';
   // Additional fields based on userType
   firstName?: string;
   lastName?: string;
@@ -142,7 +142,7 @@ export interface AuthResponse {
   user: {
     userId: string;
     email: string;
-    userType: 'driver' | 'advertiser';
+    userType: 'driver' | 'advertiser' | 'admin';
   };
 }
 

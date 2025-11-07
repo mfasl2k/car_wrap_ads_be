@@ -32,6 +32,7 @@ model User {
 enum UserType {
   driver
   advertiser
+  admin
 }
 
 // Driver Profiles

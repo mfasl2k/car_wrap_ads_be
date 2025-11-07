@@ -4,7 +4,7 @@ import { config } from "../config/env";
 
 interface TokenPayload {
   userId: string;
-  userType: "driver" | "advertiser";
+  userType: "driver" | "advertiser" | "admin";
 }
 
 /**

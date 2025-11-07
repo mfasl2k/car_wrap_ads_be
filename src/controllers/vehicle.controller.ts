@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import { AppError, asyncHandler } from "../middleware/errorHandler";
+import { deleteImageFromCloudinary } from "../middleware/upload";
 
 const prisma = new PrismaClient();
 
@@ -332,6 +333,267 @@ export const getAllVehicles = asyncHandler(
           totalPages: Math.ceil(total / Number(limit)),
         },
       },
+    });
+  }
+);
+
+/**
+ * Upload vehicle photo
+ * POST /api/vehicles/:vehicleId/upload-photo
+ */
+export const uploadVehiclePhoto = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { vehicleId } = req.params;
+
+    if (!req.user) {
+      throw new AppError("Not authenticated", 401);
+    }
+
+    // Check if file was uploaded
+    if (!req.file) {
+      throw new AppError("Please upload an image", 400);
+    }
+
+    // Get driver profile
+    const driver = await prisma.driver.findUnique({
+      where: { userId: req.user.userId },
+    });
+
+    if (!driver) {
+      throw new AppError("Driver profile not found", 404);
+    }
+
+    // Check if vehicle exists and belongs to driver
+    const existingVehicle = await prisma.vehicle.findUnique({
+      where: { vehicleId },
+    });
+
+    if (!existingVehicle) {
+      throw new AppError("Vehicle not found", 404);
+    }
+
+    if (existingVehicle.driverId !== driver.driverId) {
+      throw new AppError(
+        "You do not have permission to update this vehicle",
+        403
+      );
+    }
+
+    // Delete old image if exists
+    if (existingVehicle.photoUrl) {
+      try {
+        await deleteImageFromCloudinary(existingVehicle.photoUrl);
+      } catch (error) {
+        console.error("Error deleting old image:", error);
+        // Continue even if deletion fails
+      }
+    }
+
+    // Update vehicle with new photo URL
+    const vehicle = await prisma.vehicle.update({
+      where: { vehicleId },
+      data: {
+        photoUrl: req.file.path, // Cloudinary URL
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Vehicle photo uploaded successfully",
+      data: { 
+        vehicle,
+        imageUrl: req.file.path,
+      },
+    });
+  }
+);
+
+/**
+ * Delete vehicle photo
+ * DELETE /api/vehicles/:vehicleId/photo
+ */
+export const deleteVehiclePhoto = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { vehicleId } = req.params;
+
+    if (!req.user) {
+      throw new AppError("Not authenticated", 401);
+    }
+
+    // Get driver profile
+    const driver = await prisma.driver.findUnique({
+      where: { userId: req.user.userId },
+    });
+
+    if (!driver) {
+      throw new AppError("Driver profile not found", 404);
+    }
+
+    // Check if vehicle exists and belongs to driver
+    const existingVehicle = await prisma.vehicle.findUnique({
+      where: { vehicleId },
+    });
+
+    if (!existingVehicle) {
+      throw new AppError("Vehicle not found", 404);
+    }
+
+    if (existingVehicle.driverId !== driver.driverId) {
+      throw new AppError(
+        "You do not have permission to update this vehicle",
+        403
+      );
+    }
+
+    if (!existingVehicle.photoUrl) {
+      throw new AppError("Vehicle has no photo to delete", 400);
+    }
+
+    // Delete image from Cloudinary
+    await deleteImageFromCloudinary(existingVehicle.photoUrl);
+
+    // Update vehicle to remove photo URL
+    const vehicle = await prisma.vehicle.update({
+      where: { vehicleId },
+      data: {
+        photoUrl: null,
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Vehicle photo deleted successfully",
+      data: { vehicle },
+    });
+  }
+);
+
+/**
+ * Verify vehicle (Admin only)
+ * PATCH /api/vehicles/:vehicleId/verify
+ */
+export const verifyVehicle = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { vehicleId } = req.params;
+
+    if (!req.user) {
+      throw new AppError("Not authenticated", 401);
+    }
+
+    // Check if vehicle exists
+    const existingVehicle = await prisma.vehicle.findUnique({
+      where: { vehicleId },
+      include: {
+        driver: {
+          include: {
+            user: {
+              select: {
+                userId: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!existingVehicle) {
+      throw new AppError("Vehicle not found", 404);
+    }
+
+    if (existingVehicle.isVerified) {
+      throw new AppError("Vehicle is already verified", 400);
+    }
+
+    // Update vehicle verification status
+    const vehicle = await prisma.vehicle.update({
+      where: { vehicleId },
+      data: {
+        isVerified: true,
+      },
+      include: {
+        driver: {
+          include: {
+            user: {
+              select: {
+                userId: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Vehicle verified successfully",
+      data: { vehicle },
+    });
+  }
+);
+
+/**
+ * Unverify vehicle (Admin only)
+ * PATCH /api/vehicles/:vehicleId/unverify
+ */
+export const unverifyVehicle = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { vehicleId } = req.params;
+
+    if (!req.user) {
+      throw new AppError("Not authenticated", 401);
+    }
+
+    // Check if vehicle exists
+    const existingVehicle = await prisma.vehicle.findUnique({
+      where: { vehicleId },
+      include: {
+        driver: {
+          include: {
+            user: {
+              select: {
+                userId: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!existingVehicle) {
+      throw new AppError("Vehicle not found", 404);
+    }
+
+    if (!existingVehicle.isVerified) {
+      throw new AppError("Vehicle is already unverified", 400);
+    }
+
+    // Update vehicle verification status
+    const vehicle = await prisma.vehicle.update({
+      where: { vehicleId },
+      data: {
+        isVerified: false,
+      },
+      include: {
+        driver: {
+          include: {
+            user: {
+              select: {
+                userId: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Vehicle unverified successfully",
+      data: { vehicle },
     });
   }
 );

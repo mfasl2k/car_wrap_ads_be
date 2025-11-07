@@ -5,7 +5,7 @@ import { AppError } from './errorHandler';
 
 interface JwtPayload {
   userId: string;
-  userType: 'driver' | 'advertiser';
+  userType: 'driver' | 'advertiser' | 'admin';
 }
 
 // Extend Express Request type to include user

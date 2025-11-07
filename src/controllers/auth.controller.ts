@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 interface RegisterRequest {
   email: string;
   password: string;
-  userType: "driver" | "advertiser";
+  userType: "driver" | "advertiser" | "admin";
 }
 
 interface LoginRequest {
@@ -34,10 +34,10 @@ export const register = asyncHandler(
       throw new AppError("Please provide email, password, and userType", 400);
     }
 
-    // Validate userType
+    // Only allow driver and advertiser registration through public endpoint
     if (!["driver", "advertiser"].includes(userType)) {
       throw new AppError(
-        'userType must be either "driver" or "advertiser"',
+        'Invalid user type. Only "driver" and "advertiser" registration is allowed.',
         400
       );
     }
@@ -190,6 +190,55 @@ export const logout = asyncHandler(
       status: "success",
       message:
         "Logout successful. Please remove the token from client storage.",
+    });
+  }
+);
+
+/**
+ * Create a new admin user (admin only)
+ * POST /api/auth/admin/create
+ * Requires admin authentication
+ */
+export const createAdmin = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password, name } = req.body;
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new AppError("User with this email already exists", 400);
+    }
+
+    // Hash password
+    const hashedPassword = await hashPassword(password);
+
+    // Create admin user
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash: hashedPassword,
+        userType: 'admin',
+      },
+      select: {
+        userId: true,
+        email: true,
+        userType: true,
+        isActive: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    res.status(201).json({
+      status: "success",
+      message: "Admin user created successfully",
+      data: {
+        user,
+      },
     });
   }
 );
