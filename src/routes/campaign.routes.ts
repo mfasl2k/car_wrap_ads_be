@@ -8,6 +8,7 @@ import {
   deleteCampaign,
   updateCampaignStatus,
   getAllCampaigns,
+  uploadWrapDesign,
 } from "../controllers/campaign.controller";
 import {
   applyToCampaign,
@@ -19,6 +20,7 @@ import {
 } from "../controllers/application.controller";
 import { authenticate, authorize } from "../middleware/auth";
 import { validate } from "../middleware/validator";
+import { uploadCampaignDesign } from "../middleware/upload";
 
 const router = Router();
 
@@ -154,6 +156,12 @@ router.patch(
   authorize("advertiser"),
   updateStatusValidation,
   updateCampaignStatus
+);
+router.post(
+  "/:campaignId/upload-design",
+  authorize("advertiser"),
+  uploadCampaignDesign.single("wrapDesign"),
+  uploadWrapDesign
 );
 
 // ==================== APPLICATION ROUTES ====================

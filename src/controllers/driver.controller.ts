@@ -271,3 +271,96 @@ export const getAllDrivers = asyncHandler(
     });
   }
 );
+
+/**
+ * Verify driver (Admin only)
+ * PATCH /api/drivers/:driverId/verify
+ */
+export const verifyDriver = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { driverId } = req.params;
+
+    // Check if driver exists
+    const driver = await prisma.driver.findUnique({
+      where: { driverId },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            userType: true,
+          },
+        },
+      },
+    });
+
+    if (!driver) {
+      throw new AppError("Driver not found", 404);
+    }
+
+    // Update driver verification status
+    const updatedDriver = await prisma.driver.update({
+      where: { driverId },
+      data: { isVerified: true },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            userType: true,
+            isActive: true,
+          },
+        },
+        vehicles: true,
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Driver verified successfully",
+      data: { driver: updatedDriver },
+    });
+  }
+);
+
+/**
+ * Unverify driver (Admin only)
+ * PATCH /api/drivers/:driverId/unverify
+ */
+export const unverifyDriver = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { driverId } = req.params;
+
+    // Check if driver exists
+    const driver = await prisma.driver.findUnique({
+      where: { driverId },
+    });
+
+    if (!driver) {
+      throw new AppError("Driver not found", 404);
+    }
+
+    // Update driver verification status
+    const updatedDriver = await prisma.driver.update({
+      where: { driverId },
+      data: { isVerified: false },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            userType: true,
+            isActive: true,
+          },
+        },
+        vehicles: true,
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Driver verification revoked successfully",
+      data: { driver: updatedDriver },
+    });
+  }
+);

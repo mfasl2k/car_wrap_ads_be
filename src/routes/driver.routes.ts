@@ -7,6 +7,8 @@ import {
   updateDriverProfile,
   deleteDriverProfile,
   getAllDrivers,
+  verifyDriver,
+  unverifyDriver,
 } from "../controllers/driver.controller";
 import { authenticate, authorize } from "../middleware/auth";
 import { validate } from "../middleware/validator";
@@ -108,5 +110,9 @@ router.delete("/me", authorize("driver"), deleteDriverProfile);
 // Public/Admin routes
 router.get("/", getAllDrivers);
 router.get("/:driverId", getDriverById);
+
+// Admin-only routes
+router.patch("/:driverId/verify", authorize("admin"), verifyDriver);
+router.patch("/:driverId/unverify", authorize("admin"), unverifyDriver);
 
 export default router;

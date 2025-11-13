@@ -41,6 +41,14 @@ export const createCampaign = asyncHandler(
       );
     }
 
+    // Check if advertiser is verified
+    if (!advertiser.isVerified) {
+      throw new AppError(
+        "Your advertiser profile must be verified before creating campaigns. Please contact support.",
+        403
+      );
+    }
+
     // Validate dates
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -426,6 +434,74 @@ export const getAllCampaigns = asyncHandler(
           limit: Number(limit),
           totalPages: Math.ceil(total / Number(limit)),
         },
+      },
+    });
+  }
+);
+
+/**
+ * Upload wrap design for campaign
+ * POST /api/campaigns/:campaignId/upload-design
+ */
+export const uploadWrapDesign = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { campaignId } = req.params;
+
+    if (!req.user) {
+      throw new AppError("Not authenticated", 401);
+    }
+
+    if (!req.file) {
+      throw new AppError("Please upload a wrap design image", 400);
+    }
+
+    // Get advertiser profile
+    const advertiser = await prisma.advertiser.findUnique({
+      where: { userId: req.user.userId },
+    });
+
+    if (!advertiser) {
+      throw new AppError("Advertiser profile not found", 404);
+    }
+
+    // Check if campaign exists and belongs to this advertiser
+    const campaign = await prisma.campaign.findUnique({
+      where: { campaignId },
+    });
+
+    if (!campaign) {
+      throw new AppError("Campaign not found", 404);
+    }
+
+    if (campaign.advertiserId !== advertiser.advertiserId) {
+      throw new AppError(
+        "You can only upload designs for your own campaigns",
+        403
+      );
+    }
+
+    // Update campaign with wrap design URL (Cloudinary URL from multer)
+    const updatedCampaign = await prisma.campaign.update({
+      where: { campaignId },
+      data: {
+        wrapDesignUrl: req.file.path, // Cloudinary URL
+      },
+      include: {
+        advertiser: {
+          select: {
+            advertiserId: true,
+            companyName: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Wrap design uploaded successfully",
+      data: {
+        campaign: updatedCampaign,
+        wrapDesignUrl: req.file.path,
       },
     });
   }

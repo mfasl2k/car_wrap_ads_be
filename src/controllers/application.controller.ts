@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 
 /**
  * Calculate matching score between driver and campaign
- * Score is based on: vehicle type match, location proximity (future), driver rating
+ * Score is based on: driver verification, vehicle verification, driver rating, active status
+ * Maximum score: 100 points
  */
 const calculateMatchingScore = async (
   driverId: string,
@@ -30,12 +31,16 @@ const calculateMatchingScore = async (
     return 0;
   }
 
-  // Score based on vehicle type match (0-50 points)
+  // Score based on driver verification (0-25 points)
+  if (driver.isVerified) {
+    score += 25;
+  }
+
+  // Score based on vehicle verification (0-25 points)
   // Get first verified vehicle
   const vehicle = driver.vehicles.find((v) => v.isVerified);
   if (vehicle) {
-    // For now, all vehicle types get same score since campaign doesn't have vehicleTypes field
-    score += 50; // Vehicle exists and is verified
+    score += 25; // Vehicle exists and is verified
   }
 
   // Score based on driver rating (0-30 points)
@@ -44,16 +49,19 @@ const calculateMatchingScore = async (
   if (rating > 0) {
     score += (rating / 5) * 30;
   } else {
-    score += 15; // Default score for new drivers
+    score += 15; // Default score for new drivers (50% of max)
   }
 
-  // Base score for active driver with verified vehicle (20 points)
-  if (vehicle && vehicle.isVerified) {
+  // Base score for active driver (20 points)
+  // Check if driver has completed campaigns successfully
+  if (driver.totalCampaignsCompleted > 0) {
     score += 20;
+  } else {
+    score += 10; // New drivers get half points
   }
 
   // TODO: Add location-based scoring when target areas are implemented
-  // score += locationProximityScore (0-20 points)
+  // This would replace or augment totalCampaignsCompleted score
 
   return Math.round(score);
 };
@@ -93,6 +101,15 @@ export const applyToCampaign = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: "You must have a registered vehicle to apply to campaigns.",
+      });
+    }
+
+    // Check if driver is verified
+    if (!driver.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Your driver profile must be verified before applying to campaigns. Please contact support.",
       });
     }
 

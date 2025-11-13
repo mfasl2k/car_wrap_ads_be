@@ -469,6 +469,104 @@ Authorization: Bearer DRIVER_TOKEN
 
 ---
 
+## 7. Upload Wrap Design (Advertiser Only)
+
+**POST** `/api/campaigns/:campaignId/upload-design`
+
+**Headers:**
+
+```
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: multipart/form-data
+```
+
+**Form Data:**
+
+- `wrapDesign`: Image file (JPG, PNG, WebP)
+
+**cURL Example:**
+
+```bash
+curl -X POST http://localhost:5000/api/campaigns/{campaignId}/upload-design \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "wrapDesign=@/path/to/design.jpg"
+```
+
+**PowerShell Example:**
+
+```powershell
+$headers = @{
+    Authorization = "Bearer YOUR_JWT_TOKEN"
+}
+
+$form = @{
+    wrapDesign = Get-Item -Path "C:\path\to\design.jpg"
+}
+
+Invoke-RestMethod -Uri "http://localhost:5000/api/campaigns/$campaignId/upload-design" `
+    -Method POST `
+    -Headers $headers `
+    -Form $form
+```
+
+**Success Response (200):**
+
+```json
+{
+  "status": "success",
+  "message": "Wrap design uploaded successfully",
+  "data": {
+    "campaign": {
+      "campaignId": "uuid",
+      "campaignName": "Summer Campaign",
+      "wrapDesignUrl": "https://res.cloudinary.com/your-cloud/image/upload/v123456789/car_wrap_ads/campaigns/design.jpg",
+      "status": "draft",
+      ...
+    },
+    "wrapDesignUrl": "https://res.cloudinary.com/your-cloud/image/upload/v123456789/car_wrap_ads/campaigns/design.jpg"
+  }
+}
+```
+
+**File Requirements:**
+
+- **Format**: JPG, JPEG, PNG, WebP
+- **Max Size**: 10 MB
+- **Recommended Dimensions**: 1500x1000 pixels (auto-optimized)
+- **Auto-optimization**: Quality and format optimized by Cloudinary
+
+**Postman Setup:**
+
+1. Method: POST
+2. URL: `{{base_url}}/campaigns/{{campaign_id}}/upload-design`
+3. Headers: `Authorization: Bearer {{advertiser_token}}`
+4. Body → form-data
+   - Key: `wrapDesign` (type: File)
+   - Value: Select image file
+
+**Postman Test Script:**
+
+```javascript
+pm.test("Status is 200", function () {
+  pm.response.to.have.status(200);
+});
+
+pm.test("Wrap design URL returned", function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.data.wrapDesignUrl).to.be.a("string");
+  pm.expect(jsonData.data.wrapDesignUrl).to.include("cloudinary.com");
+});
+
+pm.test("Campaign updated with design", function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.data.campaign.wrapDesignUrl).to.equal(
+    jsonData.data.wrapDesignUrl
+  );
+});
+```
+
+---
+
 ## Campaign Status Flow
 
 ```
@@ -480,12 +578,44 @@ draft → active → paused → active → completed
 **Typical Workflow:**
 
 1. Create campaign (status: `draft`)
-2. Set up campaign details, target areas
-3. Activate campaign (status: `active`)
-4. Drivers can now apply
-5. Pause if needed (status: `paused`)
-6. Resume (status: `active`)
-7. End campaign (status: `completed`)
+2. **Upload wrap design** 🎨 (NEW!)
+3. Set up campaign details, target areas
+4. Activate campaign (status: `active`)
+5. Drivers can now apply
+6. Pause if needed (status: `paused`)
+7. Resume (status: `active`)
+8. End campaign (status: `completed`)
+
+---
+
+## Image Upload Features
+
+### Cloudinary Integration
+
+All wrap design images are:
+
+- ✅ **Automatically optimized** for web delivery
+- ✅ **Resized** to max 1500x1000 (maintains aspect ratio)
+- ✅ **Quality optimized** based on content
+- ✅ **Stored securely** on Cloudinary CDN
+- ✅ **Fast delivery** globally
+
+### Storage Structure
+
+```
+car_wrap_ads/
+└── campaigns/
+    ├── design_abc123.jpg
+    ├── design_def456.png
+    └── design_ghi789.webp
+```
+
+### Benefits
+
+- **Fast Loading**: CDN-delivered images
+- **Responsive**: Auto-format based on device
+- **Secure**: HTTPS delivery
+- **No Local Storage**: No server disk usage
 
 ---
 
@@ -493,8 +623,8 @@ draft → active → paused → active → completed
 
 After Campaign API is working, you can implement:
 
-- **Driver Application System** - Drivers apply to campaigns
+- **Driver Application System** - Drivers apply to campaigns ✅ **DONE**
 - **Campaign Target Areas** - Define geographic zones
 - **Campaign Analytics** - Track performance
 
-Campaign API is now ready! 🚀
+Campaign API with image upload is now ready! 🚀

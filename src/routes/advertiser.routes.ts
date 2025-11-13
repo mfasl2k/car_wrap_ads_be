@@ -7,6 +7,8 @@ import {
   updateAdvertiserProfile,
   deleteAdvertiserProfile,
   getAllAdvertisers,
+  verifyAdvertiser,
+  unverifyAdvertiser,
 } from "../controllers/advertiser.controller";
 import { authenticate, authorize } from "../middleware/auth";
 import { validate } from "../middleware/validator";
@@ -104,5 +106,9 @@ router.delete("/me", authorize("advertiser"), deleteAdvertiserProfile);
 // Public/Admin routes
 router.get("/", getAllAdvertisers);
 router.get("/:advertiserId", getAdvertiserById);
+
+// Admin-only routes
+router.patch("/:advertiserId/verify", authorize("admin"), verifyAdvertiser);
+router.patch("/:advertiserId/unverify", authorize("admin"), unverifyAdvertiser);
 
 export default router;

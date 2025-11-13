@@ -283,3 +283,108 @@ export const getAllAdvertisers = asyncHandler(
     });
   }
 );
+
+/**
+ * Verify advertiser (Admin only)
+ * PATCH /api/advertisers/:advertiserId/verify
+ */
+export const verifyAdvertiser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { advertiserId } = req.params;
+
+    // Check if advertiser exists
+    const advertiser = await prisma.advertiser.findUnique({
+      where: { advertiserId },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            userType: true,
+          },
+        },
+      },
+    });
+
+    if (!advertiser) {
+      throw new AppError("Advertiser not found", 404);
+    }
+
+    // Update advertiser verification status
+    const updatedAdvertiser = await prisma.advertiser.update({
+      where: { advertiserId },
+      data: { isVerified: true },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            userType: true,
+            isActive: true,
+          },
+        },
+        campaigns: {
+          select: {
+            campaignId: true,
+            campaignName: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Advertiser verified successfully",
+      data: { advertiser: updatedAdvertiser },
+    });
+  }
+);
+
+/**
+ * Unverify advertiser (Admin only)
+ * PATCH /api/advertisers/:advertiserId/unverify
+ */
+export const unverifyAdvertiser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { advertiserId } = req.params;
+
+    // Check if advertiser exists
+    const advertiser = await prisma.advertiser.findUnique({
+      where: { advertiserId },
+    });
+
+    if (!advertiser) {
+      throw new AppError("Advertiser not found", 404);
+    }
+
+    // Update advertiser verification status
+    const updatedAdvertiser = await prisma.advertiser.update({
+      where: { advertiserId },
+      data: { isVerified: false },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            userType: true,
+            isActive: true,
+          },
+        },
+        campaigns: {
+          select: {
+            campaignId: true,
+            campaignName: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Advertiser verification revoked successfully",
+      data: { advertiser: updatedAdvertiser },
+    });
+  }
+);
