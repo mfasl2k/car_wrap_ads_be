@@ -68,11 +68,11 @@ const calculateMatchingScore = async (
 
 /**
  * Apply to a campaign
- * POST /api/campaigns/:id/apply
+ * POST /api/campaigns/:campaignId/apply
  */
 export const applyToCampaign = async (req: Request, res: Response) => {
   try {
-    const { id: campaignId } = req.params;
+    const { campaignId } = req.params;
     const userId = req.user?.userId;
 
     if (!userId) {
@@ -143,15 +143,8 @@ export const applyToCampaign = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if campaign dates are valid
+    // Check if campaign has ended (allow applications before start date)
     const now = new Date();
-    if (campaign.startDate > now) {
-      return res.status(400).json({
-        success: false,
-        message: "Campaign has not started yet.",
-      });
-    }
-
     if (campaign.endDate < now) {
       return res.status(400).json({
         success: false,
@@ -312,11 +305,11 @@ export const getMyApplications = async (req: Request, res: Response) => {
 
 /**
  * Get applications for a campaign (advertiser only)
- * GET /api/campaigns/:id/applications
+ * GET /api/campaigns/:campaignId/applications
  */
 export const getCampaignApplications = async (req: Request, res: Response) => {
   try {
-    const { id: campaignId } = req.params;
+    const { campaignId } = req.params;
     const userId = req.user?.userId;
 
     if (!userId) {
@@ -423,11 +416,11 @@ export const getCampaignApplications = async (req: Request, res: Response) => {
 
 /**
  * Approve application
- * PATCH /api/campaigns/:id/applications/:driverId/approve
+ * PATCH /api/campaigns/:campaignId/applications/:driverId/approve
  */
 export const approveApplication = async (req: Request, res: Response) => {
   try {
-    const { id: campaignId, driverId } = req.params;
+    const { campaignId, driverId } = req.params;
     const userId = req.user?.userId;
 
     if (!userId) {
@@ -550,11 +543,11 @@ export const approveApplication = async (req: Request, res: Response) => {
 
 /**
  * Reject application
- * PATCH /api/campaigns/:id/applications/:driverId/reject
+ * PATCH /api/campaigns/:campaignId/applications/:driverId/reject
  */
 export const rejectApplication = async (req: Request, res: Response) => {
   try {
-    const { id: campaignId, driverId } = req.params;
+    const { campaignId, driverId } = req.params;
     const { reason } = req.body;
     const userId = req.user?.userId;
 
@@ -665,11 +658,11 @@ export const rejectApplication = async (req: Request, res: Response) => {
 
 /**
  * Cancel application (driver only)
- * DELETE /api/campaigns/:id/apply
+ * DELETE /api/campaigns/:campaignId/apply
  */
 export const cancelApplication = async (req: Request, res: Response) => {
   try {
-    const { id: campaignId } = req.params;
+    const { campaignId } = req.params;
     const userId = req.user?.userId;
 
     if (!userId) {

@@ -160,7 +160,7 @@ router.patch(
 router.post(
   "/:campaignId/upload-design",
   authorize("advertiser"),
-  uploadCampaignDesign.single("wrapDesign"),
+  uploadCampaignDesign.single("design"),
   uploadWrapDesign
 );
 
